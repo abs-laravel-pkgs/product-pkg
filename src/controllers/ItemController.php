@@ -1,7 +1,10 @@
 <?php
 
 namespace Abs\ProductPkg;
+use Abs\ProductPkg\Category;
 use Abs\ProductPkg\Item;
+use Abs\ProductPkg\MainCategory;
+use Abs\ProductPkg\Strength;
 use App\Http\Controllers\Controller;
 use Auth;
 use Carbon\Carbon;
@@ -15,18 +18,31 @@ class ItemController extends Controller {
 	private $company_id;
 	public function __construct() {
 		$this->data['theme'] = config('custom.admin_theme');
+		// $this->company_id = Auth::user()->company_id;
 		$this->company_id = config('custom.company_id');
 	}
 
 	public function getItems(Request $request) {
 		$this->data['items'] = Item::
-			select([
-			'items.question',
-			'items.answer',
-		])
-			->where('items.company_id', $this->company_id)
+			leftJoin('categories as c', 'c.id', 'items.category_id')
+			->leftJoin('strengths as s', 's.id', 'items.strength_id')
+			->leftJoin('main_categories as mc', 'mc.id', 'c.main_category_id')
+			->leftJoin('shipping_methods as sm', 'sm.id', 'items.shipping_method_id')
+			->select([
+				'c.name',
+				's.name',
+				'items.package_size',
+				'mc.name',
+				'items.display_order',
+				'items.special_price',
+				'items.has_free',
+				'items.free_qty',
+				'items.has_free_shipping',
+				'sm.name',
+			])
+			->where('c.company_id', $this->company_id)
+			->orderby('c.display_order', 'asc')
 			->orderby('items.display_order', 'asc')
-			->get()
 		;
 		$this->data['success'] = true;
 
@@ -36,23 +52,35 @@ class ItemController extends Controller {
 
 	public function getItemList(Request $request) {
 		$items = Item::withTrashed()
+			->leftJoin('categories as c', 'c.id', 'items.category_id')
+			->leftJoin('strengths as s', 's.id', 'items.strength_id')
+			->leftJoin('main_categories as mc', 'mc.id', 'c.main_category_id')
+			->leftJoin('shipping_methods as sm', 'sm.id', 'items.shipping_method_id')
 			->select([
 				'items.id',
-				'items.question',
-				DB::raw('items.deleted_at as status'),
+				'c.name as category_name',
+				's.name as strength_name',
+				'items.package_size',
+				'mc.name as main_category_name',
+				'items.display_order',
+				'items.special_price',
+				'items.has_free',
+				'items.free_qty',
+				'items.has_free_shipping',
+				'sm.name as shipping_method_name',
+				'items.deleted_at',
 			])
-			->where('items.company_id', Auth::user()->company_id)
-			->where(function ($query) use ($request) {
-				if (!empty($request->question)) {
-					$query->where('items.question', 'LIKE', '%' . $request->question . '%');
-				}
-			})
-			->orderby('items.id', 'desc');
+			->where('c.company_id', $this->company_id)
+			->orderby('c.display_order', 'asc')
+			->orderby('items.display_order', 'asc')
+		;
 
 		return Datatables::of($items)
-			->addColumn('question', function ($item) {
-				$status = $item->status ? 'green' : 'red';
-				return '<span class="status-indicator ' . $status . '"></span>' . $item->question;
+			->rawColumns(['action', 'category_name'])
+
+			->addColumn('category_name', function ($item) {
+				$status = $item->deleted_at ? 'green' : 'red';
+				return '<span class="status-indicator ' . $status . '"></span>' . $item->category_name;
 			})
 			->addColumn('action', function ($item) {
 				$img1 = asset('public/themes/' . $this->data['theme'] . '/img/content/table/edit-yellow.svg');
@@ -81,6 +109,11 @@ class ItemController extends Controller {
 			$action = 'Edit';
 		}
 		$this->data['item'] = $item;
+		$this->data['extras'] = [
+			'main_category_list' => MainCategory::getList(),
+			'category_list' => Category::getList(),
+			'strength_list' => Strength::getList(),
+		];
 		$this->data['action'] = $action;
 
 		return response()->json($this->data);

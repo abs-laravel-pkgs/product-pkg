@@ -46,7 +46,16 @@ app.component('itemList', {
             },
             columns: [
                 { data: 'action', searchable: false, class: 'action' },
-                { data: 'question', name: 'items.question', searchable: true },
+                { data: 'category_name', name: 'c.name', searchable: true },
+                { data: 'strength_name', name: 's.name', searchable: true },
+                { data: 'package_size', name: 'items.package_size', searchable: true },
+                { data: 'main_category_name', name: 'mc.name', searchable: true },
+                { data: 'display_order', searchable: false },
+                { data: 'special_price', searchable: false },
+                { data: 'has_free', searchable: false },
+                { data: 'free_qty', searchable: false },
+                { data: 'has_free_shipping', searchable: false },
+                { data: 'shipping_method_name', name: 'sm.name', searchable: true },
             ],
             "infoCallback": function(settings, start, end, max, total, pre) {
                 $('#table_info').html(total + '/' + max)
@@ -59,12 +68,12 @@ app.component('itemList', {
             },
         });
         $('.dataTables_length select').select2();
-        $('.page-header-content .display-inline-block .data-table-title').html('FAQs <span class="badge badge-secondary" id="table_info">0</span>');
+        $('.page-header-content .display-inline-block .data-table-title').html('Items <span class="badge badge-secondary" id="table_info">0</span>');
         $('.page-header-content .search.display-inline-block .add_close_button').html('<button type="button" class="btn btn-img btn-add-close"><img src="' + image_scr2 + '" class="img-responsive"></button>');
         $('.page-header-content .refresh.display-inline-block').html('<button type="button" class="btn btn-refresh"><img src="' + image_scr3 + '" class="img-responsive"></button>');
         $('.add_new_button').html(
             '<a href="#!/product-pkg/item/add" type="button" class="btn btn-secondary" dusk="add-btn">' +
-            'Add FAQ' +
+            'Add Item' +
             '</a>'
         );
 
@@ -153,6 +162,7 @@ app.component('itemForm', {
             }
         }).then(function(response) {
             self.item = response.data.item;
+            self.extras = response.data.extras;
             self.action = response.data.action;
             $rootScope.loading = false;
             if (self.action == 'Edit') {
@@ -170,15 +180,23 @@ app.component('itemForm', {
         var v = jQuery(form_id).validate({
             ignore: '',
             rules: {
-                'question': {
+                'main_category_id': {
                     required: true,
-                    minlength: 3,
-                    maxlength: 255,
                 },
-                'answer': {
+                'category_id': {
                     required: true,
-                    minlength: 3,
-                    maxlength: 255,
+                },
+                'strength_id': {
+                    required: true,
+                },
+                'package_size': {
+                    required: true,
+                },
+                'display_order': {
+                    required: true,
+                },
+                'special_price': {
+                    required: true,
                 },
             },
             invalidHandler: function(event, validator) {
