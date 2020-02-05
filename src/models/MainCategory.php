@@ -12,8 +12,8 @@ class MainCategory extends Model {
 	protected $table = 'main_categories';
 	protected $fillable = [
 		'name',
-		'seo_name',
 		'display_order',
+		'seo_name',
 	];
 
 	public function categories() {

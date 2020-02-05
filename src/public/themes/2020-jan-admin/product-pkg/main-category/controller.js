@@ -21,8 +21,6 @@ app.component('mainCategoryList', {
         $scope.loading = true;
         var self = this;
         self.hasPermission = HelperService.hasPermission;
-        var table_scroll;
-        table_scroll = $('.page-main-content').height() - 37;
         var dataTable = $('#main_category_list').DataTable({
             "dom": dom_structure,
             "language": {
@@ -41,21 +39,14 @@ app.component('mainCategoryList', {
             paging: true,
             ordering: false,
             ajax: {
-                url: laravel_routes['getItemList'],
+                url: laravel_routes['getMainCategoryList'],
                 data: function(d) {}
             },
             columns: [
                 { data: 'action', searchable: false, class: 'action' },
-                { data: 'category_name', name: 'c.name', searchable: true },
-                { data: 'strength_name', name: 's.name', searchable: true },
-                { data: 'package_size', name: 'main-categorys.package_size', searchable: true },
-                { data: 'main_category_name', name: 'mc.name', searchable: true },
-                { data: 'display_order', searchable: false },
-                { data: 'special_price', searchable: false },
-                { data: 'has_free', searchable: false },
-                { data: 'free_qty', searchable: false },
-                { data: 'has_free_shipping', searchable: false },
-                { data: 'shipping_method_name', name: 'sm.name', searchable: true },
+                { data: 'name', name: 'main_categories.name', searchable: true },
+                { data: 'display_order', name: 'main_categories.display_order', searchable: false },
+                { data: 'seo_name', name: 'main_categories.seo_name', searchable: true },
             ],
             "infoCallback": function(settings, start, end, max, total, pre) {
                 $('#table_info').html(total + '/' + max)
@@ -68,61 +59,59 @@ app.component('mainCategoryList', {
             },
         });
         $('.dataTables_length select').select2();
-        $('.page-header-content .display-inline-block .data-table-title').html('Main Categorys <span class="badge badge-secondary" id="table_info">0</span>');
+        $('.page-header-content .display-inline-block .data-table-title').html('Main Categories <span class="badge badge-secondary" id="table_info">0</span>');
         $('.page-header-content .search.display-inline-block .add_close_button').html('<button type="button" class="btn btn-img btn-add-close"><img src="' + image_scr2 + '" class="img-responsive"></button>');
         $('.page-header-content .refresh.display-inline-block').html('<button type="button" class="btn btn-refresh"><img src="' + image_scr3 + '" class="img-responsive"></button>');
         $('.add_new_button').html(
             '<a href="#!/product-pkg/main-category/add" type="button" class="btn btn-secondary" dusk="add-btn">' +
             'Add Main Category' +
-            '</a>'
+            '</a>' +
+            '<a role="button" id="open" data-toggle="modal"  data-target="#sms-tempalte-filter" class="btn btn-img"> <img src="' + image_scr + '" alt="Filter" onmouseover=this.src="' + image_scr1 + '" onmouseout=this.src="' + image_scr + '"></a>'
         );
 
         $('.btn-add-close').on("click", function() {
-            $('#main-categorys_list').DataTable().search('').draw();
+            $('#main_category_list').DataTable().search('').draw();
         });
 
         $('.btn-refresh').on("click", function() {
-            $('#main-categorys_list').DataTable().ajax.reload();
+            $('#main_category_list').DataTable().ajax.reload();
         });
 
-        $('.dataTables_length select').select2();
+        // $scope.clear_search = function() {
+        //     $('#search_main-category').val('');
+        //     $('#main_category_list').DataTable().search('').draw();
+        // }
 
-        $scope.clear_search = function() {
-            $('#search_main-category').val('');
-            $('#main_category_list').DataTable().search('').draw();
-        }
-
-        var dataTables = $('#main_category_list').dataTable();
-        $("#search_main-category").keyup(function() {
-            dataTables.fnFilter(this.value);
-        });
+        // var dataTables = $('#main_category_list').dataTable();
+        // $("#search_main-category").keyup(function() {
+        //     dataTables.fnFilter(this.value);
+        // });
 
         //DELETE
-        $scope.deleteItem = function($id) {
+        $scope.deleteMainCategory = function($id) {
             $('#main_category_id').val($id);
         }
         $scope.deleteConfirm = function() {
-            $id = $('#main-category_id').val();
+            $id = $('#main_category_id').val();
             $http.get(
-                main - category_delete_data_url + '/' + $id,
+                laravel_routes['deleteMainCategory'], {
+                    params: {
+                        id: $id,
+                    }
+                }
             ).then(function(response) {
                 if (response.data.success) {
-                    $noty = new Noty({
-                        type: 'success',
-                        layout: 'topRight',
-                        text: 'Main Category Deleted Successfully',
-                    }).show();
-                    setTimeout(function() {
-                        $noty.close();
-                    }, 3000);
-                    $('#main-categorys_list').DataTable().ajax.reload(function(json) {});
-                    $location.path('/product-pkg/main-category/list');
+                    custom_noty('success', response.data.message);
+                    $('#main_category_list').DataTable().ajax.reload();
+                    $scope.$apply();
+                } else {
+                    custom.noty('error', errors);
                 }
             });
         }
 
         //FOR FILTER
-        $('#main-category_code').on('keyup', function() {
+        /*$('#main-category_code').on('keyup', function() {
             dataTables.fnFilter();
         });
         $('#main-category_name').on('keyup', function() {
@@ -140,7 +129,7 @@ app.component('mainCategoryList', {
             $("#mobile_no").val('');
             $("#email").val('');
             dataTables.fnFilter();
-        }
+        }*/
 
         $rootScope.loading = false;
     }
@@ -150,10 +139,10 @@ app.component('mainCategoryList', {
 app.component('mainCategoryForm', {
     templateUrl: main_category_form_template_url,
     controller: function($http, $location, HelperService, $scope, $routeParams, $rootScope) {
-        get_form_data_url = typeof($routeParams.id) == 'undefined' ? laravel_routes['getItemFormData'] : laravel_routes['getItemFormData'] + '/' + $routeParams.id;
         var self = this;
         self.hasPermission = HelperService.hasPermission;
         self.angular_routes = angular_routes;
+        fileUpload();
         $http({
             url: laravel_routes['getMainCategoryFormData'],
             method: 'GET',
@@ -161,9 +150,11 @@ app.component('mainCategoryForm', {
                 'id': typeof($routeParams.id) == 'undefined' ? null : $routeParams.id,
             }
         }).then(function(response) {
+            console.log(response.data);
             self.main_category = response.data.main_category;
-            self.extras = response.data.extras;
+            self.attachment = response.data.attachment;
             self.action = response.data.action;
+            self.theme = response.data.theme;
             $rootScope.loading = false;
             if (self.action == 'Edit') {
                 if (self.main_category.deleted_at) {
@@ -171,42 +162,81 @@ app.component('mainCategoryForm', {
                 } else {
                     self.switch_value = 'Active';
                 }
+                if (self.attachment) {
+                    $scope.PreviewImage = 'public/themes/' + self.theme + '/img/main_category_icon/' + self.attachment.name;
+                    $('#edited_file_name').val(self.attachment.name);
+                } else {
+                    $('#edited_file_name').val('');
+                }
             } else {
                 self.switch_value = 'Active';
             }
         });
 
+
+        $scope.SelectFile = function(e) {
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                $scope.PreviewImage = e.target.result;
+                $scope.$apply();
+            };
+            reader.readAsDataURL(e.target.files[0]);
+        };
+
         var form_id = '#form';
         var v = jQuery(form_id).validate({
             ignore: '',
+            errorPlacement: function(error, element) {
+                if (element.attr("name") == "icon_id") {
+                    error.insertAfter("#attachment_error");
+                } else {
+                    error.insertAfter(element);
+                }
+            },
             rules: {
-                'main_category_id': {
+                'name': {
                     required: true,
-                },
-                'category_id': {
-                    required: true,
-                },
-                'strength_id': {
-                    required: true,
-                },
-                'package_size': {
-                    required: true,
+                    minlength: 3,
+                    maxlength: 191,
                 },
                 'display_order': {
                     required: true,
+                    minlength: 3,
+                    maxlength: 8,
                 },
-                'special_price': {
+                'seo_name': {
                     required: true,
+                    minlength: 3,
+                    maxlength: 191,
+                },
+                'icon_id': {
+                    required: function() {
+                        if (self.action == 'Edit') {
+                            if (self.attachment) {
+                                return false;
+                            } else {
+                                return true;
+                            }
+                        } else {
+                            return true;
+                        }
+                    },
+                    extension: "jpg|jpeg|png|ico|bmp|svg|gif",
                 },
             },
+            messages: {
+                'icon_id': {
+                    extension: "Accept Image Files Only. Eg: jpg,jpeg,png,ico,bmp,svg,gif"
+                }
+            },
             invalidHandler: function(event, validator) {
-                checkAllTabNoty()
+                custom_noty('error', 'You have errors,Please check all tabs');
             },
             submitHandler: function(form) {
                 let formData = new FormData($(form_id)[0]);
                 $('#submit').button('loading');
                 $.ajax({
-                        url: laravel_routes['saveItem'],
+                        url: laravel_routes['saveMainCategory'],
                         method: "POST",
                         data: formData,
                         processData: false,
@@ -220,7 +250,11 @@ app.component('mainCategoryForm', {
                         } else {
                             if (!res.success == true) {
                                 $('#submit').button('reset');
-                                showErrorNoty(res)
+                                var errors = '';
+                                for (var i in res.errors) {
+                                    errors += '<li>' + res.errors[i] + '</li>';
+                                }
+                                custom_noty('error', errors);
                             } else {
                                 $('#submit').button('reset');
                                 $location.path('/product-pkg/main-category/list');
@@ -230,7 +264,7 @@ app.component('mainCategoryForm', {
                     })
                     .fail(function(xhr) {
                         $('#submit').button('reset');
-                        showServerErrorNoty()
+                        custom_noty('error', 'Something went wrong at server');
                     });
             }
         });

@@ -3,22 +3,15 @@
         <thead class="header">
             <tr>
                 <th class="action">Actions</th>
-                <th>Category</th>
-                <th>Strength</th>
-                <th>Pack Size</th>
-                <th>Main Category</th>
+                <th>Name</th>
                 <th>Display Order</th>
-                <th>Special Price</th>
-                <th>Has Free</th>
-                <th>Free Qty</th>
-                <th>Has Free Shipping</th>
-                <th>Free Shipping Method</th>
+                <th>SEO Name</th>
             </tr>
         </thead>
     </table><!-- Table -->
 </div>
 <!-- Modal -->
-<div class="modal fade down-block" id="item-delete-modal" tabindex="-1" item="dialog" aria-labelledby="myModalLabel">
+<div class="modal fade down-block" id="main-category-delete-modal" tabindex="-1" item="dialog" aria-labelledby="myModalLabel">
     <div class="modal-dialog" item="document">
         <div class="modal-content">
             <div class="modal-body">
@@ -30,9 +23,9 @@
                         </div>
                     </div>
                     <div class="alert-button">
-                        <input type="hidden" name="item_id" id="item_id" value="">
+                        <input type="hidden" name="main_category_id" id="main_category_id" value="">
                         <button type="button" class="btn btn-red" data-dismiss="modal">Reject</button>
-                        <button type="button" id="accept" ng-click="deleteRole()" data-dismiss="modal" class="btn btn-red">Accept</button>
+                        <button type="button" id="accept" ng-click="deleteConfirm()" data-dismiss="modal" class="btn btn-red">Accept</button>
                     </div>
                 </div><!-- Modal Alert -->
             </div><!-- Modal Body -->

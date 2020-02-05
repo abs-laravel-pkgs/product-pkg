@@ -5,7 +5,7 @@ Route::group(['namespace' => 'Abs\ProductPkg', 'middleware' => ['web', 'auth'], 
 	Route::get('/main-categories/get-list', 'MainCategoryController@getMainCategoryList')->name('getMainCategoryList');
 	Route::get('/main-category/get-form-data', 'MainCategoryController@getMainCategoryFormData')->name('getMainCategoryFormData');
 	Route::post('/main-category/save', 'MainCategoryController@saveMainCategory')->name('saveMainCategory');
-	Route::get('/main-category/delete/{id}', 'MainCategoryController@deleteMainCategory')->name('deleteMainCategory');
+	Route::get('/main-category/delete', 'MainCategoryController@deleteMainCategory')->name('deleteMainCategory');
 
 	//Categories
 	Route::get('/categories/get-list', 'CategoryController@getCategoryList')->name('getCategoryList');
