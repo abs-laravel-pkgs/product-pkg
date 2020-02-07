@@ -12,11 +12,10 @@ class Category extends Model {
 	protected $table = 'categories';
 	protected $fillable = [
 		'name',
+		'display_order',
 		'description',
 		'usage',
 		'package_type_id',
-		'image_id',
-		'drug_category_id',
 		'manufacturer_id',
 		'active_substance_id',
 		'customer_rating',
@@ -25,7 +24,6 @@ class Category extends Model {
 		'page_title',
 		'meta_description',
 		'meta_keywords',
-		'starts_at',
 	];
 
 	public function strengths() {
@@ -45,7 +43,7 @@ class Category extends Model {
 	}
 
 	public function mainCategory() {
-		return $this->belongsTo('App\MainCategory');
+		return $this->belongsTo('Abs\ProductPkg\MainCategory');
 	}
 
 	public function activeSubstance() {

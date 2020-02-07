@@ -1,14 +1,15 @@
 <?php
 
 namespace Abs\ProductPkg;
-use Abs\ProductPkg\Category;
+use Abs\Basic\Attachment;
+use Abs\Basic\Entity;
 use Abs\ProductPkg\Category;
 use Abs\ProductPkg\MainCategory;
-use Abs\ProductPkg\Strength;
 use App\Http\Controllers\Controller;
 use Auth;
 use Carbon\Carbon;
 use DB;
+use File;
 use Illuminate\Http\Request;
 use Validator;
 use Yajra\Datatables\Datatables;
@@ -22,80 +23,33 @@ class CategoryController extends Controller {
 		$this->company_id = config('custom.company_id');
 	}
 
-	public function getCategories(Request $request) {
-		$this->data['categories'] = Category::
-			leftJoin('categories as c', 'c.id', 'categories.category_id')
-			->leftJoin('strengths as s', 's.id', 'categories.strength_id')
-			->leftJoin('main_categories as mc', 'mc.id', 'c.main_category_id')
-			->leftJoin('shipping_methods as sm', 'sm.id', 'categories.shipping_method_id')
-			->select([
-				'c.name',
-				's.name',
-				'categories.package_size',
-				'mc.name',
-				'categories.display_order',
-				'categories.special_price',
-				'categories.has_free',
-				'categories.free_qty',
-				'categories.has_free_shipping',
-				'sm.name',
-			])
-			->where('c.company_id', $this->company_id)
-			->orderby('c.display_order', 'asc')
-			->orderby('categories.display_order', 'asc')
-		;
-		$this->data['success'] = true;
-
-		return response()->json($this->data);
-
-	}
-
 	public function getCategoryList(Request $request) {
-		$categories = Category::withTrashed()
-			->leftJoin('entities as pt', 'pt.id', 'categories.package_type_id')
-			->leftJoin('entities as m', 'pt.id', 'categories.manufacturer_id')
-			->leftJoin('entities as as', 'pt.id', 'categories.active_substance_id')
-			->leftJoin('attachments as a', 'a.id', 'categories.image_id')
-			->leftJoin('main_categories as mc', 'mc.id', 'categories.main_category_id')
-			->select([
-				'categories.id',
-				'categories.name',
-				'categories.display_order',
-				'categories.seo_name',
-				'pt.name as package_type_name',
-				'm.name as manufacturer_name',
-				'mc.name as main_category_name',
-				'categories.special_price',
-				'categories.has_free',
-				'categories.free_qty',
-				'categories.has_free_shipping',
-				'sm.name as shipping_method_name',
-				'categories.deleted_at',
-			])
-			->where('c.company_id', $this->company_id)
-			->orderby('c.display_order', 'asc')
-			->orderby('categories.display_order', 'asc')
+		$categories = Category::withTrashed()->select(
+			'categories.id',
+			'categories.name as category_name',
+			'categories.display_order as category_display_order',
+			'categories.seo_name as category_seo_name',
+			'main_categories.name as main_category_name',
+			DB::raw('IF(categories.deleted_at IS NULL, "Active","Inactive") as status')
+		)
+			->leftJoin('main_categories', 'main_categories.id', 'categories.main_category_id')
+			->where('categories.company_id', $this->company_id)
+			->orderby('categories.id', 'desc')
 		;
 
 		return Datatables::of($categories)
-			->rawColumns(['action', 'category_name'])
-
-			->addColumn('category_name', function ($category) {
-				$status = $category->deleted_at ? 'green' : 'red';
-				return '<span class="status-indicator ' . $status . '"></span>' . $category->category_name;
+			->addColumn('name', function ($categories) {
+				$status = $categories->status == 'Active' ? 'green' : 'red';
+				return '<span class="status-indicator ' . $status . '"></span>' . $categories->category_name;
 			})
-			->addColumn('action', function ($category) {
+			->addColumn('action', function ($categories) {
 				$img1 = asset('public/themes/' . $this->data['theme'] . '/img/content/table/edit-yellow.svg');
 				$img1_active = asset('public/themes/' . $this->data['theme'] . '/img/content/table/edit-yellow-active.svg');
-				$img2 = asset('public/themes/' . $this->data['theme'] . '/img/content/table/eye.svg');
-				$img2_active = asset('public/themes/' . $this->data['theme'] . '/img/content/table/eye-active.svg');
 				$img_delete = asset('public/themes/' . $this->data['theme'] . '/img/content/table/delete-default.svg');
 				$img_delete_active = asset('public/themes/' . $this->data['theme'] . '/img/content/table/delete-active.svg');
 				$output = '';
-				$output .= '<a href="#!/product-pkg/category/edit/' . $category->id . '" id = "" ><img src="' . $img1 . '" alt="Edit" class="img-responsive" onmouseover=this.src="' . $img1_active . '" onmouseout=this.src="' . $img1 . '"></a>
-					<a href="#!/product-pkg/category/view/' . $category->id . '" id = "" ><img src="' . $img2 . '" alt="View" class="img-responsive" onmouseover=this.src="' . $img2_active . '" onmouseout=this.src="' . $img2 . '"></a>
-					<a href="javascript:;"  data-toggle="modal" data-target="#category-delete-modal" onclick="angular.element(this).scope().deleteRoleconfirm(' . $category->id . ')" title="Delete"><img src="' . $img_delete . '" alt="Delete" class="img-responsive delete" onmouseover=this.src="' . $img_delete_active . '" onmouseout=this.src="' . $img_delete . '"></a>
-					';
+				$output .= '<a href="#!/product-pkg/category/edit/' . $categories->id . '" id = "" ><img src="' . $img1 . '" alt="Edit" class="img-responsive" onmouseover=this.src="' . $img1_active . '" onmouseout=this.src="' . $img1 . '"></a>
+					<a href="javascript:;"  data-toggle="modal" data-target="#category-delete-modal" onclick="angular.element(this).scope().deleteCategory(' . $categories->id . ')" title="Delete"><img src="' . $img_delete . '" alt="Delete" class="img-responsive delete" onmouseover=this.src="' . $img_delete_active . '" onmouseout=this.src="' . $img_delete . '"></a>';
 				return $output;
 			})
 			->make(true);
@@ -105,42 +59,59 @@ class CategoryController extends Controller {
 		$id = $r->id;
 		if (!$id) {
 			$category = new Category;
+			$attachment = new Attachment;
 			$action = 'Add';
 		} else {
-			$category = Category::withTrashed()->find($id);
+			$category = Category::withTrashed()->with([
+				'mainCategory',
+				'manufacturer',
+				'packageType',
+				'activeSubstance',
+			])
+				->where('categories.id', $id)
+				->first();
+			$attachment = Attachment::where('id', $category->image_id)->first();
 			$action = 'Edit';
 		}
 		$this->data['category'] = $category;
+		$this->data['attachment'] = $attachment;
 		$this->data['extras'] = [
-			'main_category_list' => MainCategory::getList(),
-			'category_list' => Category::getList(),
-			'strength_list' => Strength::getList(),
+			'main_category_list' => collect(MainCategory::where('company_id', $this->company_id)->select('id', 'name')->get())->prepend(['name' => 'Select Main Category', 'id' => '']),
+			'active_substance_list' => collect(Entity::where('entity_type_id', 1)->select('id', 'name')->get())->prepend(['name' => 'Select Active Substance', 'id' => '']),
+			'manufacture_list' => collect(Entity::where('entity_type_id', 3)->select('id', 'name')->get())->prepend(['name' => 'Select Manufacture', 'id' => '']),
+			'package_type_list' => collect(Entity::where('entity_type_id', 4)->select('id', 'name')->get())->prepend(['name' => 'Select Package Type', 'id' => '']),
 		];
 		$this->data['action'] = $action;
+		$this->data['theme'];
 
 		return response()->json($this->data);
 	}
 
 	public function saveCategory(Request $request) {
-		// dd($request->all());
+		//dd($request->all());
 		try {
 			$error_messages = [
-				'code.required' => 'Category Code is Required',
-				'code.max' => 'Maximum 255 Characters',
-				'code.min' => 'Minimum 3 Characters',
-				'code.unique' => 'Category Code is already taken',
-				'name.required' => 'Category Name is Required',
-				'name.max' => 'Maximum 255 Characters',
-				'name.min' => 'Minimum 3 Characters',
+				'name.required' => 'Name is Required',
+				'name.unique' => 'Name is already taken',
+				'display_order.required' => 'Display Order is Required',
+				'package_type_id.required' => 'Package Type is Required',
+				'customer_rating.required' => 'Customer Rating is Required',
+				'seo_name.required' => 'SEO Name is Required',
+				'seo_name.unique' => 'SEO Name is already taken',
 			];
 			$validator = Validator::make($request->all(), [
-				'question' => [
-					'required:true',
-					'max:255',
-					'min:3',
-					'unique:categories,question,' . $request->id . ',id,company_id,' . Auth::user()->company_id,
+				'name' => [
+					'required',
+					'unique:categories,name,' . $request->id . ',id,company_id,' . Auth::user()->company_id,
 				],
-				'answer' => 'required|max:255|min:3',
+				'display_order' => 'required',
+				'package_type_id' => 'required',
+				'customer_rating' => 'required',
+				'seo_name' => [
+					'required',
+					'unique:categories,seo_name,' . $request->id . ',id,company_id,' . Auth::user()->company_id,
+				],
+				'image_id' => 'mimes:jpeg,jpg,png,gif,ico,bmp,svg|nullable|max:10000',
 			], $error_messages);
 			if ($validator->fails()) {
 				return response()->json(['success' => false, 'errors' => $validator->errors()->all()]);
@@ -159,6 +130,7 @@ class CategoryController extends Controller {
 			}
 			$category->fill($request->all());
 			$category->company_id = Auth::user()->company_id;
+			$category->starts_at = 0; //Starts at Dummy value
 			if ($request->status == 'Inactive') {
 				$category->deleted_at = Carbon::now();
 				$category->deleted_by_id = Auth::user()->id;
@@ -166,18 +138,65 @@ class CategoryController extends Controller {
 				$category->deleted_by_id = NULL;
 				$category->deleted_at = NULL;
 			}
+			if ($request->has_free == 'Yes') {
+				$category->has_free = 1;
+			} else {
+				$category->has_free = 0;
+			}
+			if ($request->has_free_shipping == 'Yes') {
+				$category->has_free_shipping = 1;
+			} else {
+				$category->has_free_shipping = 0;
+			}
+			if ($request->is_best_selling == 'Yes') {
+				$category->is_best_selling = 1;
+			} else {
+				$category->is_best_selling = 0;
+			}
 			$category->save();
+
+			if (!empty($request->image_id)) {
+				if (!File::exists(public_path() . '/themes/' . config('custom.admin_theme') . '/img/category_image')) {
+					File::makeDirectory(public_path() . '/themes/' . config('custom.admin_theme') . '/img/category_image', 0777, true);
+				}
+
+				$attacement = $request->image_id;
+				$remove_previous_attachment = Attachment::where([
+					'entity_id' => $request->id,
+					'attachment_of_id' => 21,
+				])->first();
+				if (!empty($remove_previous_attachment)) {
+					$remove = $remove_previous_attachment->forceDelete();
+					$img_path = public_path() . '/themes/' . config('custom.admin_theme') . '/img/category_image/' . $remove_previous_attachment->name;
+					if (File::exists($img_path)) {
+						File::delete($img_path);
+					}
+				}
+				$random_file_name = $category->id . '_category_file_' . rand(0, 1000) . '.';
+				$extension = $attacement->getClientOriginalExtension();
+				$attacement->move(public_path() . '/themes/' . config('custom.admin_theme') . '/img/category_image', $random_file_name . $extension);
+
+				$attachment = new Attachment;
+				$attachment->company_id = Auth::user()->company_id;
+				$attachment->attachment_of_id = 21; //Company
+				$attachment->attachment_type_id = 40; //Primary
+				$attachment->entity_id = $category->id;
+				$attachment->name = $random_file_name . $extension;
+				$attachment->save();
+				$category->image_id = $attachment->id;
+				$category->save();
+			}
 
 			DB::commit();
 			if (!($request->id)) {
 				return response()->json([
 					'success' => true,
-					'message' => 'FAQ Added Successfully',
+					'message' => 'Category Added Successfully',
 				]);
 			} else {
 				return response()->json([
 					'success' => true,
-					'message' => 'FAQ Updated Successfully',
+					'message' => 'Category Updated Successfully',
 				]);
 			}
 		} catch (Exceprion $e) {
@@ -189,8 +208,16 @@ class CategoryController extends Controller {
 		}
 	}
 
-	public function deleteCategory($id) {
-		$delete_status = Category::withTrashed()->where('id', $id)->forceDelete();
-		return response()->json(['success' => true]);
+	public function deleteCategory(Request $request) {
+		DB::beginTransaction();
+		try {
+			Category::withTrashed()->where('id', $request->id)->forceDelete();
+			Attachment::where('attachment_of_id', 21)->where('entity_id', $request->id)->forceDelete();
+			DB::commit();
+			return response()->json(['success' => true, 'message' => 'Category Deleted Successfully']);
+		} catch (Exception $e) {
+			DB::rollBack();
+			return response()->json(['success' => false, 'errors' => ['Exception Error' => $e->getMessage()]]);
+		}
 	}
 }

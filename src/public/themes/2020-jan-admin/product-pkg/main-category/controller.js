@@ -105,7 +105,7 @@ app.component('mainCategoryList', {
                     $('#main_category_list').DataTable().ajax.reload();
                     $scope.$apply();
                 } else {
-                    custom.noty('error', errors);
+                    custom.noty('error', response.data.errors);
                 }
             });
         }
@@ -150,7 +150,7 @@ app.component('mainCategoryForm', {
                 'id': typeof($routeParams.id) == 'undefined' ? null : $routeParams.id,
             }
         }).then(function(response) {
-            console.log(response.data);
+            //console.log(response.data);
             self.main_category = response.data.main_category;
             self.attachment = response.data.attachment;
             self.action = response.data.action;

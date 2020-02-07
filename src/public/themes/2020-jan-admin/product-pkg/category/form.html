@@ -7,16 +7,16 @@
                     <div class="page-header-content">
                         <div class="page-header-inner page-title display-inline-block">
                             <div class="previous-page">
-                                <a href="#!/product-pkg/item/list">
-                                    <img src="./public/img/content/previous.svg" class="img-responsive">
+                                <a href="#!/product-pkg/category/list">
+                                    <img src="./public/themes/{{$ctrl.theme}}/img/content/previous.svg" class="img-responsive">
                                 </a>
                             </div>
                         </div><!-- Page Header Inner -->
                         <div class="page-header-inner page-title display-inline-block">
-                            <h1 class="title">{{$ctrl.action}} Item</h1>
+                            <h1 class="title">{{$ctrl.action}} Category</h1>
                             <p class="subtitle">
-                                <a href="#!/product-pkg/item/list">
-                                    Items List
+                                <a href="#!/product-pkg/category/list">
+                                    Categories
                                 </a> /
                                 {{$ctrl.action}}
                             </p>
@@ -29,7 +29,7 @@
     <!-- Page Main Content -->
     <div class="page-main-content">
         <form id="form" autocomplete="off">
-            <input type="hidden" name="id" value="{{$ctrl.item.id}}">
+            <input type="hidden" name="id" value="{{$ctrl.category.id}}">
             <div class="container">
                 <div class="row">
                     <div class="col-md-12">
@@ -42,6 +42,9 @@
                                                 <li class="active">
                                                     <a data-target="#general-info" role="tab" data-toggle="tab" aria-expanded="true"> General Information
                                                     </a>
+                                                </li>
+                                                <li>
+                                                   <a data-target="#seo-details" role="tab" data-toggle="tab" aria-expanded="true">SEO Details</a> 
                                                 </li>
                                             </ul>
                                         </div><!-- Filters -->
@@ -56,73 +59,33 @@
                                                     <div class="col-md-3">
                                                         <div class="form-group">
                                                             <label>
+                                                                Name 
+                                                                <span class="mandatory">
+                                                                    *
+                                                                </span>
+                                                            </label>
+                                                            <input type="text" class="form-control required" name="name" ng-model="$ctrl.category.name" placeholder="Enter Category Name" autocomplete="off" minlength="3" maxlength="191">
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-3">
+                                                        <div class="form-group">
+                                                            <label>
                                                                 Main Category
                                                                 <span class="mandatory">
                                                                     *
                                                                 </span>
                                                             </label>
-                                                            <md-select ng-model="$ctrl.item.main_category_id" md-on-close="clearSearchTerm()" data-md-container-class="selectdemoSelectHeader" placeholder="Select Main Category">
+                                                            <md-select ng-model="$ctrl.category.main_category_id" md-on-close="clearSearchTerm()" data-md-container-class="selectdemoSelectHeader" placeholder="Select Main Category">
                                                                 <md-select-header class="demo-select-header">
                                                                     <input ng-model="searchTerm" type="search" placeholder="Search for a Main Category" class="demo-header-searchbox md-text">
                                                                 </md-select-header>
                                                                 <md-optgroup>
-                                                                    <md-option ng-value="main_category.id" ng-repeat="main_category in $ctrl.extras.main_category_list | filter:searchTerm">{{main_category.name}}</md-option>
+                                                                    <md-option ng-value="i.id" ng-repeat="i in $ctrl.extras.main_category_list | filter:searchTerm">{{i.name}}</md-option>
                                                                 </md-optgroup>
                                                             </md-select>
-                                                            <input type="hidden" class="form-control" name="main_category_id" value="{{$ctrl.item.main_category_id}}">
+                                                            <input type="hidden" class="form-control" name="main_category_id" value="{{$ctrl.category.main_category_id}}">
                                                         </div>
                                                     </div>
-                                                    <div class="col-md-3">
-                                                        <div class="form-group">
-                                                            <label>
-                                                                Category
-                                                                <span class="mandatory">
-                                                                    *
-                                                                </span>
-                                                            </label>
-                                                            <md-select ng-model="$ctrl.item.category_id" md-on-close="clearSearchTerm()" data-md-container-class="selectdemoSelectHeader" placeholder="Select Category">
-                                                                <md-select-header class="demo-select-header">
-                                                                    <input ng-model="searchTerm" type="search" placeholder="Search for a Category" class="demo-header-searchbox md-text">
-                                                                </md-select-header>
-                                                                <md-optgroup>
-                                                                    <md-option ng-value="category.id" ng-repeat="category in $ctrl.extras.category_list | filter:searchTerm">{{category.name}}</md-option>
-                                                                </md-optgroup>
-                                                            </md-select>
-                                                            <input type="hidden" class="form-control" name="category_id" value="{{$ctrl.item.category_id}}">
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-md-3">
-                                                        <div class="form-group">
-                                                            <label>
-                                                                Stregnth
-                                                                <span class="mandatory">
-                                                                    *
-                                                                </span>
-                                                            </label>
-                                                            <md-select ng-model="$ctrl.item.stregth_id" md-on-close="clearSearchTerm()" data-md-container-class="selectdemoSelectHeader" placeholder="Select Stregth">
-                                                                <md-select-header class="demo-select-header">
-                                                                    <input ng-model="searchTerm" type="search" placeholder="Search for a Stregth" class="demo-header-searchbox md-text">
-                                                                </md-select-header>
-                                                                <md-optgroup>
-                                                                    <md-option ng-value="stregth.id" ng-repeat="stregth in $ctrl.extras.strength_list | filter:searchTerm">{{stregth.name}}</md-option>
-                                                                </md-optgroup>
-                                                            </md-select>
-                                                            <input type="hidden" class="form-control" name="stregth_id" value="{{$ctrl.item.stregth_id}}">
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-md-3">
-                                                        <div class="form-group">
-                                                            <label>
-                                                                Pack Size
-                                                                <span class="mandatory">
-                                                                    *
-                                                                </span>
-                                                            </label>
-                                                            <input type="text" name="package_size" ng-model='$ctrl.item.package_size' class="form-control " placeholder="">
-                                                        </div>
-                                                    </div>
-                                                </div><!-- Row -->
-                                                <div class="row">
                                                     <div class="col-md-3">
                                                         <div class="form-group">
                                                             <label>
@@ -131,91 +94,134 @@
                                                                     *
                                                                 </span>
                                                             </label>
-                                                            <input type="text" name="display_order" ng-model='$ctrl.item.display_order' class="form-control" placeholder="">
+                                                            <input type="text" name="display_order" ng-model="$ctrl.category.display_order" class="form-control required" placeholder="Enter Display Order" autocomplete="off" oninput="this.value = this.value.replace(/[^0-9]/g, '').replace(/(\..*)\./g, '$1');" minlength="3" maxlength="8">
                                                         </div>
                                                     </div>
                                                     <div class="col-md-3">
                                                         <div class="form-group">
                                                             <label>
-                                                                Regular Price
+                                                                Package Type
                                                                 <span class="mandatory">
                                                                     *
                                                                 </span>
                                                             </label>
-                                                            <input type="text" name="regular_price" ng-model='$ctrl.item.regular_price' class="form-control " placeholder="">
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-md-3">
-                                                        <div class="form-group">
-                                                            <label>
-                                                                Special Price
-                                                                <span class="mandatory">
-                                                                    *
-                                                                </span>
-                                                            </label>
-                                                            <input type="text" name="special_price" ng-model='$ctrl.item.special_price' class="form-control " placeholder="">
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-md-3">
-                                                        <div class="form-group">
-                                                            <label>
-                                                                Has Free Qty?
-                                                                <span class="mandatory">
-                                                                    *
-                                                                </span>
-                                                            </label>
-                                                            <md-switch ng-model="$ctrl.item.has_free" aria-label="Switch 2" ng-true-value="'0'" ng-false-value="'1'" class="md-warn">
-                                                                {{ $ctrl.item.has_free == 1 ? 'Yes' : 'No' }}
-                                                            </md-switch>
-                                                            <input type="hidden" name="has_free" value="{{$ctrl.item.has_free}}">
-                                                        </div><!-- Field -->
-                                                    </div><!-- Column -->
-                                                </div><!-- Row -->
-                                                <div class="row">
-                                                    <div class="col-md-3" ng-show="$ctrl.item.has_free == 1">
-                                                        <div class="form-group">
-                                                            <label>
-                                                                Free Qty
-                                                                <span class="mandatory">
-                                                                    *
-                                                                </span>
-                                                            </label>
-                                                            <input type="text" name="free_qty" ng-model='$ctrl.item.free_qty' class="form-control " placeholder="">
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-md-3">
-                                                        <div class="form-group">
-                                                            <label>
-                                                                Has Free Shipping?
-                                                                <span class="mandatory">
-                                                                    *
-                                                                </span>
-                                                            </label>
-                                                            <md-switch ng-model="$ctrl.item.has_free_shipping" aria-label="Switch 2" ng-true-value="'0'" ng-false-value="'1'" class="md-warn">
-                                                                {{ $ctrl.item.has_free_shipping == 1 ? 'Yes' : 'No'}}
-                                                            </md-switch>
-                                                            <input type="hidden" name="status" value="{{$ctrl.item.has_free_shipping}}">
-                                                        </div><!-- Field -->
-                                                    </div><!-- Column -->
-                                                    <div class="col-md-3" ng-show="$ctrl.item.has_free_shipping == 1">
-                                                        <div class="form-group">
-                                                            <label>
-                                                                Free Shipping Method
-                                                                <span class="mandatory">
-                                                                    *
-                                                                </span>
-                                                            </label>
-                                                            <md-select ng-model="$ctrl.item.stregth_id" md-on-close="clearSearchTerm()" data-md-container-class="selectdemoSelectHeader" placeholder="Select Stregth">
+                                                            <md-select ng-model="$ctrl.category.package_type_id" md-on-close="clearSearchTerm()" data-md-container-class="selectdemoSelectHeader" placeholder="Select Package Type">
                                                                 <md-select-header class="demo-select-header">
-                                                                    <input ng-model="searchTerm" type="search" placeholder="Search for a Stregth" class="demo-header-searchbox md-text">
+                                                                    <input ng-model="searchTerm1" type="search" placeholder="Search for a Package Type" class="demo-header-searchbox md-text">
                                                                 </md-select-header>
                                                                 <md-optgroup>
-                                                                    <md-option ng-value="stregth.id" ng-repeat="stregth in $ctrl.extras.strength_list | filter:searchTerm">{{stregth.name}}</md-option>
+                                                                    <md-option ng-value="i.id" ng-repeat="i in $ctrl.extras.package_type_list | filter:searchTerm1">{{i.name}}</md-option>
                                                                 </md-optgroup>
                                                             </md-select>
-                                                            <input type="hidden" class="form-control" name="stregth_id" value="{{$ctrl.item.stregth_id}}">
+                                                            <input type="hidden" class="form-control" name="package_type_id" value="{{$ctrl.category.package_type_id}}">
                                                         </div>
                                                     </div>
+                                                </div><!-- Row -->
+                                                <div class="row">
+                                                    <div class="col-md-3">
+                                                        <div class="form-group">
+                                                            <label>Image<span class="mandatory">*</span></label>
+                                                            <div class="input-group btn-file">
+                                                                <input type="text" class="form-control" id="edited_file_name" readonly placeholder="Browse Image">
+                                                                <span class="input-group-btn">
+                                                                    <span class="btn btn-primary">
+                                                                        <input type="file" name="image_id" class="form-control required" placeholder="Enter Image" accept="image/*" onchange="angular.element(this).scope().SelectFile(event)">
+                                                                        <img src="public/themes/{{$ctrl.theme}}/img/content/file-bg.svg">
+                                                                    </span>
+                                                                </span>
+                                                            </div>
+                                                        </div><!-- Field -->
+                                                        <span id="attachment_error"></span>
+                                                    </div>
+                                                    <div class="col-md-3">
+                                                        <div class="form-group">
+                                                            <label>Manufacture</label>
+                                                            <md-select ng-model="$ctrl.category.manufacturer_id" md-on-close="clearSearchTerm()" data-md-container-class="selectdemoSelectHeader" placeholder="Select Manufacture">
+                                                                <md-select-header class="demo-select-header">
+                                                                    <input ng-model="searchTerm2" type="search" placeholder="Search for a Manufacture" class="demo-header-searchbox md-text">
+                                                                </md-select-header>
+                                                                <md-optgroup>
+                                                                    <md-option ng-value="i.id" ng-repeat="i in $ctrl.extras.manufacture_list | filter:searchTerm2">{{i.name}}</md-option>
+                                                                </md-optgroup>
+                                                            </md-select>
+                                                            <input type="hidden" class="form-control" name="manufacturer_id" value="{{$ctrl.category.manufacturer_id}}">
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-3">
+                                                        <div class="form-group">
+                                                            <label>Active Substance</label>
+                                                            <md-select ng-model="$ctrl.category.active_substance_id" md-on-close="clearSearchTerm()" data-md-container-class="selectdemoSelectHeader" placeholder="Select Active Substance">
+                                                                <md-select-header class="demo-select-header">
+                                                                    <input ng-model="searchTerm3" type="search" placeholder="Search for a Active Substance" class="demo-header-searchbox md-text">
+                                                                </md-select-header>
+                                                                <md-optgroup>
+                                                                    <md-option ng-value="i.id" ng-repeat="i in $ctrl.extras.active_substance_list | filter:searchTerm3">{{i.name}}</md-option>
+                                                                </md-optgroup>
+                                                            </md-select>
+                                                            <input type="hidden" class="form-control" name="active_substance_id" value="{{$ctrl.category.active_substance_id}}">
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-3">
+                                                        <div class="form-group">
+                                                            <label>
+                                                                Customer Rating 
+                                                                <span class="mandatory">
+                                                                    *
+                                                                </span>
+                                                            </label>
+                                                            <input type="number" class="form-control required" name="customer_rating" ng-model="$ctrl.category.customer_rating" placeholder="Enter Customer Rating" autocomplete="off" min="1" max="5" value="{{$ctrl.category.customer_rating}}" minlength="1" maxlength="4">
+                                                        </div>
+                                                    </div>
+                                                </div><!-- Row -->
+                                                <div class="row">
+                                                    <div class="col-md-3">
+                                                        <div class="form-group">
+                                                            <label>
+                                                                Has Free
+                                                                <span class="mandatory">
+                                                                    *
+                                                                </span>
+                                                            </label>
+                                                            <div class="md-switch-two">
+                                                                <md-switch ng-model="$ctrl.has_free" aria-label="Switch 2" ng-true-value="'No'" ng-false-value="'Yes'" class="md-warn">
+                                                                {{ $ctrl.has_free }}
+                                                                </md-switch>
+                                                                <input type="hidden" name="has_free" value="{{$ctrl.has_free}}">
+                                                            </div>
+                                                        </div><!-- Field -->
+                                                    </div>
+                                                    <div class="col-md-3">
+                                                        <div class="form-group">
+                                                            <label>
+                                                                Has Free Shipping
+                                                                <span class="mandatory">
+                                                                    *
+                                                                </span>
+                                                            </label>
+                                                            <div class="md-switch-two">
+                                                                <md-switch ng-model="$ctrl.has_free_shipping" aria-label="Switch 2" ng-true-value="'No'" ng-false-value="'Yes'" class="md-warn">
+                                                                    {{ $ctrl.has_free_shipping }}
+                                                                </md-switch>
+                                                                <input type="hidden" name="has_free_shipping" value="{{$ctrl.has_free_shipping}}">
+                                                            </div>
+                                                        </div><!-- Field -->
+                                                    </div><!-- Column -->
+                                                    <div class="col-md-3">
+                                                        <div class="form-group">
+                                                            <label>
+                                                                Is Best Selling
+                                                                <span class="mandatory">
+                                                                    *
+                                                                </span>
+                                                            </label>
+                                                            <div class="md-switch-two">
+                                                                <md-switch ng-model="$ctrl.is_best_selling" aria-label="Switch 2" ng-true-value="'No'" ng-false-value="'Yes'" class="md-warn">
+                                                                    {{ $ctrl.is_best_selling }}
+                                                                </md-switch>
+                                                                <input type="hidden" name="is_best_selling" value="{{$ctrl.is_best_selling}}">
+                                                            </div>
+                                                        </div><!-- Field -->
+                                                    </div><!-- Column -->
                                                     <div class="col-md-3">
                                                         <div class="form-group">
                                                             <label>
@@ -224,16 +230,87 @@
                                                                     *
                                                                 </span>
                                                             </label>
-                                                            <md-switch ng-model="$ctrl.item.deleted_at" aria-label="Switch 2" ng-true-value="'0'" ng-false-value="'1'" class="md-warn">
-                                                                {{ $ctrl.item.deleted_at ? 'Active' : 'Inactive' }}
+                                                            <md-switch ng-model="$ctrl.switch_value" aria-label="Switch 2" ng-true-value="'Inactive'" ng-false-value="'Active'" class="md-warn">
+                                                                {{ $ctrl.switch_value }}
                                                             </md-switch>
-                                                            <input type="hidden" name="deleted_at" value="{{$ctrl.item.deleted_at}}">
+                                                            <input type="hidden" name="status" value="{{$ctrl.switch_value}}">
                                                         </div><!-- Field -->
                                                     </div><!-- Column -->
                                                 </div><!-- Row -->
                                                 <div class="row">
                                                     <div class="col-md-12">
                                                         <div class="tab-pane-footer text-right">
+                                                            <a class="btn btn-grey btn-nxt">Next</a>
+                                                            <button type="submit" id="submit" class="btn btn-secondary">
+                                                                Submit
+                                                            </button>
+                                                        </div><!-- Tab Footer -->
+                                                    </div>
+                                                </div><!-- Row -->
+                                            </div><!-- Tab Pane Wrap -->
+                                        </div><!-- Tab Pane -->
+                                        <div class="tab-pane fade" id="seo-details" data-animation="fadeInUp" data-animation-delay="300">
+                                            <div class="tab-pane-wrap">
+                                                <div class="row">
+                                                    <div class="col-md-3">
+                                                        <div class="form-group">
+                                                            <label>
+                                                                SEO Name 
+                                                                <span class="mandatory">
+                                                                    *
+                                                                </span>
+                                                            </label>
+                                                            <input type="text" class="form-control required" name="seo_name" ng-model="$ctrl.category.seo_name" placeholder="Enter SEO Name" autocomplete="off" minlength="3" maxlength="191">
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-3">
+                                                        <div class="form-group">
+                                                            <label>
+                                                                Page Title 
+                                                                <span class="mandatory">
+                                                                    *
+                                                                </span>
+                                                            </label>
+                                                            <input type="text" class="form-control required" name="page_title" ng-model="$ctrl.category.page_title" placeholder="Enter Page Title" autocomplete="off" minlength="3" maxlength="255">
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-3">
+                                                        <div class="form-group">
+                                                            <label>Meta Description</label>
+                                                            <textarea name="meta_description" ng-model="$ctrl.category.meta_description" class="form-control" placeholder="Enter Meta Description" rows="3" autocomplete="off" minlength="3" maxlength="255"></textarea>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-3">
+                                                        <div class="form-group">
+                                                            <label>Meta Keywords</label>
+                                                            <textarea name="meta_keywords" ng-model="$ctrl.category.meta_keywords" class="form-control" placeholder="Enter Meta Keywords" rows="3" autocomplete="off" minlength="3" maxlength="255"></textarea>
+                                                        </div>
+                                                    </div>
+                                                </div><!-- Row -->
+                                                <div class="row">
+                                                    <div class="col-md-3">
+                                                        <div class="form-group">
+                                                            <label>Description</label>
+                                                            <textarea name="description" ng-model="$ctrl.category.description" class="form-control" placeholder="Enter Description" rows="3" autocomplete="off" minlength="3" maxlength="255"></textarea>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-3">
+                                                        <div class="form-group">
+                                                            <label>Usage</label>
+                                                            <textarea name="usage" ng-model="$ctrl.category.usage" class="form-control" placeholder="Enter Usage" rows="3" autocomplete="off" minlength="3" maxlength="255"></textarea>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-3" ng-if="$ctrl.action == 'Edit'">
+                                                        <div class="form-group">
+                                                            <label>Preview</label>
+                                                            <img ng-src="{{PreviewImage}}" ng-show="PreviewImage != null" alt="" style="width:50px" />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col-md-12">
+                                                        <div class="tab-pane-footer text-right">
+                                                            <a class="btn btn-grey btn-prev">Previous</a>
                                                             <button type="submit" id="submit" class="btn btn-secondary">
                                                                 Submit
                                                             </button>

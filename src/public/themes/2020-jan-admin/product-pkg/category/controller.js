@@ -21,8 +21,6 @@ app.component('categoryList', {
         $scope.loading = true;
         var self = this;
         self.hasPermission = HelperService.hasPermission;
-        var table_scroll;
-        table_scroll = $('.page-main-content').height() - 37;
         var dataTable = $('#category_list').DataTable({
             "dom": dom_structure,
             "language": {
@@ -46,16 +44,10 @@ app.component('categoryList', {
             },
             columns: [
                 { data: 'action', searchable: false, class: 'action' },
-                { data: 'category_name', name: 'c.name', searchable: true },
-                { data: 'strength_name', name: 's.name', searchable: true },
-                { data: 'package_size', name: 'categorys.package_size', searchable: true },
-                { data: 'main_category_name', name: 'mc.name', searchable: true },
-                { data: 'display_order', searchable: false },
-                { data: 'special_price', searchable: false },
-                { data: 'has_free', searchable: false },
-                { data: 'free_qty', searchable: false },
-                { data: 'has_free_shipping', searchable: false },
-                { data: 'shipping_method_name', name: 'sm.name', searchable: true },
+                { data: 'category_name', name: 'categories.name', searchable: true },
+                { data: 'main_category_name', name: 'main_categories.name', searchable: true },
+                { data: 'category_display_order', name: 'categories.display_order', searchable: false },
+                { data: 'category_seo_name', name: 'categories.seo_name', searchable: true },
             ],
             "infoCallback": function(settings, start, end, max, total, pre) {
                 $('#table_info').html(total + '/' + max)
@@ -74,20 +66,19 @@ app.component('categoryList', {
         $('.add_new_button').html(
             '<a href="#!/product-pkg/category/add" type="button" class="btn btn-secondary" dusk="add-btn">' +
             'Add Category' +
-            '</a>'
+            '</a>' +
+            '<a role="button" id="open" data-toggle="modal"  data-target="#sms-tempalte-filter" class="btn btn-img"> <img src="' + image_scr + '" alt="Filter" onmouseover=this.src="' + image_scr1 + '" onmouseout=this.src="' + image_scr + '"></a>'
         );
 
         $('.btn-add-close').on("click", function() {
-            $('#categorys_list').DataTable().search('').draw();
+            $('#category_list').DataTable().search('').draw();
         });
 
         $('.btn-refresh').on("click", function() {
-            $('#categorys_list').DataTable().ajax.reload();
+            $('#category_list').DataTable().ajax.reload();
         });
 
-        $('.dataTables_length select').select2();
-
-        $scope.clear_search = function() {
+        /*$scope.clear_search = function() {
             $('#search_category').val('');
             $('#categorys_list').DataTable().search('').draw();
         }
@@ -95,7 +86,7 @@ app.component('categoryList', {
         var dataTables = $('#categorys_list').dataTable();
         $("#search_category").keyup(function() {
             dataTables.fnFilter(this.value);
-        });
+        });*/
 
         //DELETE
         $scope.deleteCategory = function($id) {
@@ -104,25 +95,24 @@ app.component('categoryList', {
         $scope.deleteConfirm = function() {
             $id = $('#category_id').val();
             $http.get(
-                category_delete_data_url + '/' + $id,
+                laravel_routes['deleteCategory'], {
+                    params: {
+                        id: $id,
+                    }
+                }
             ).then(function(response) {
                 if (response.data.success) {
-                    $noty = new Noty({
-                        type: 'success',
-                        layout: 'topRight',
-                        text: 'Category Deleted Successfully',
-                    }).show();
-                    setTimeout(function() {
-                        $noty.close();
-                    }, 3000);
-                    $('#categorys_list').DataTable().ajax.reload(function(json) {});
-                    $location.path('/product-pkg/category/list');
+                    custom_noty('success', response.data.message);
+                    $('#category_list').DataTable().ajax.reload();
+                    $scope.$apply();
+                } else {
+                    custom_noty('error', response.data.errors);
                 }
             });
         }
 
         //FOR FILTER
-        $('#category_code').on('keyup', function() {
+        /*$('#category_code').on('keyup', function() {
             dataTables.fnFilter();
         });
         $('#category_name').on('keyup', function() {
@@ -140,7 +130,7 @@ app.component('categoryList', {
             $("#mobile_no").val('');
             $("#email").val('');
             dataTables.fnFilter();
-        }
+        }*/
 
         $rootScope.loading = false;
     }
@@ -154,16 +144,19 @@ app.component('categoryForm', {
         var self = this;
         self.hasPermission = HelperService.hasPermission;
         self.angular_routes = angular_routes;
+        fileUpload();
         $http({
             url: laravel_routes['getCategoryFormData'],
             method: 'GET',
             params: {
                 'id': typeof($routeParams.id) == 'undefined' ? null : $routeParams.id,
             }
-        }).then(function(response) {
+        }).then(function(response) {console.log(response.data);
             self.category = response.data.category;
+            self.attachment = response.data.attachment;
             self.extras = response.data.extras;
             self.action = response.data.action;
+            self.theme = response.data.theme;
             $rootScope.loading = false;
             if (self.action == 'Edit') {
                 if (self.category.deleted_at) {
@@ -171,36 +164,120 @@ app.component('categoryForm', {
                 } else {
                     self.switch_value = 'Active';
                 }
+                if (self.category.has_free == 1) {
+                    self.has_free = 'Yes';
+                } else {
+                    self.has_free = 'No';
+                }
+                if (self.category.has_free_shipping == 1) {
+                    self.has_free_shipping = 'Yes';
+                } else {
+                    self.has_free_shipping = 'No';
+                }
+                if (self.category.is_best_selling == 1) {
+                    self.is_best_selling = 'Yes';
+                } else {
+                    self.is_best_selling = 'No';
+                }
+                if (self.attachment) {
+                    $scope.PreviewImage = 'public/themes/' + self.theme + '/img/category_image/' + self.attachment.name;
+                    $('#edited_file_name').val(self.attachment.name);
+                } else {
+                    $('#edited_file_name').val('');
+                }
             } else {
                 self.switch_value = 'Active';
+                self.has_free = 'Yes';
+                self.has_free_shipping = 'Yes';
+                self.is_best_selling = 'Yes';
             }
+        });
+
+        $scope.SelectFile = function(e) {
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                $scope.PreviewImage = e.target.result;
+                $scope.$apply();
+            };
+            reader.readAsDataURL(e.target.files[0]);
+        };
+
+        /* Tab Funtion */
+        $('.btn-nxt').on("click", function() {
+            $('.editDetails-tabs li.active').next().children('a').trigger("click");
+            tabPaneFooter();
+        });
+        $('.btn-prev').on("click", function() {
+            $('.editDetails-tabs li.active').prev().children('a').trigger("click");
+            tabPaneFooter();
         });
 
         var form_id = '#form';
         var v = jQuery(form_id).validate({
             ignore: '',
+            errorPlacement: function(error, element) {
+                if (element.attr("name") == "image_id") {
+                    error.insertAfter("#attachment_error");
+                } else {
+                    error.insertAfter(element);
+                }
+            },
             rules: {
+                'name': {
+                    required: true,
+                    minlength: 3,
+                    maxlength: 191,
+                },
                 'main_category_id': {
                     required: true,
                 },
-                'category_id': {
+                'display_order': {
                     required: true,
+                    number: true,
+                    minlength: 3,
+                    maxlength: 8,
                 },
-                'strength_id': {
-                    required: true,
-                },
-                'package_size': {
+                'package_type_id': {
                     required: true,
                 },
                 'display_order': {
                     required: true,
                 },
-                'special_price': {
+                'image_id': {
+                    required: function() {
+                        if (self.action == 'Edit') {
+                            if (self.attachment) {
+                                return false;
+                            } else {
+                                return true;
+                            }
+                        } else {
+                            return true;
+                        }
+                    },
+                    extension: "jpg|jpeg|png|ico|bmp|svg|gif",
+                },
+                'customer_rating': {
                     required: true,
+                    number: true,
+                    min:1,
+                    max:5,
+                    minlength: 1,
+                    maxlength: 4,
+                },
+                'seo_name': {
+                    required: true,
+                    minlength: 3,
+                    maxlength: 191,
+                },
+                'page_title': {
+                    required: true,
+                    minlength: 3,
+                    maxlength: 255,
                 },
             },
             invalidHandler: function(event, validator) {
-                checkAllTabNoty()
+                custom_noty('error', 'You have errors,Please check all tabs');
             },
             submitHandler: function(form) {
                 let formData = new FormData($(form_id)[0]);
@@ -220,7 +297,11 @@ app.component('categoryForm', {
                         } else {
                             if (!res.success == true) {
                                 $('#submit').button('reset');
-                                showErrorNoty(res)
+                                var errors = '';
+                                for (var i in res.errors) {
+                                    errors += '<li>' + res.errors[i] + '</li>';
+                                }
+                                custom_noty('error', errors);
                             } else {
                                 $('#submit').button('reset');
                                 $location.path('/product-pkg/category/list');
@@ -230,7 +311,7 @@ app.component('categoryForm', {
                     })
                     .fail(function(xhr) {
                         $('#submit').button('reset');
-                        showServerErrorNoty()
+                        custom_noty('error', 'Something went wrong at server');
                     });
             }
         });

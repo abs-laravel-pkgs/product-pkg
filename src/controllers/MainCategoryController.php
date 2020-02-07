@@ -138,8 +138,8 @@ class MainCategoryController extends Controller {
 
 				$attachment = new Attachment;
 				$attachment->company_id = Auth::user()->company_id;
-				$attachment->attachment_of_id = 21;
-				$attachment->attachment_type_id = 40;
+				$attachment->attachment_of_id = 21; //Company
+				$attachment->attachment_type_id = 40; //Primary
 				$attachment->entity_id = $main_category->id;
 				$attachment->name = $random_file_name . $extension;
 				$attachment->save();
