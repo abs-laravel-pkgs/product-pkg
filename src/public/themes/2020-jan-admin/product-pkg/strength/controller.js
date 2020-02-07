@@ -21,8 +21,6 @@ app.component('strengthList', {
         $scope.loading = true;
         var self = this;
         self.hasPermission = HelperService.hasPermission;
-        var table_scroll;
-        table_scroll = $('.page-main-content').height() - 37;
         var dataTable = $('#strengths_list').DataTable({
             "dom": dom_structure,
             "language": {
@@ -46,16 +44,9 @@ app.component('strengthList', {
             },
             columns: [
                 { data: 'action', searchable: false, class: 'action' },
-                { data: 'category_name', name: 'c.name', searchable: true },
-                { data: 'strength_name', name: 's.name', searchable: true },
-                { data: 'package_size', name: 'strengths.package_size', searchable: true },
-                { data: 'main_category_name', name: 'mc.name', searchable: true },
-                { data: 'display_order', searchable: false },
-                { data: 'special_price', searchable: false },
-                { data: 'has_free', searchable: false },
-                { data: 'free_qty', searchable: false },
-                { data: 'has_free_shipping', searchable: false },
-                { data: 'shipping_method_name', name: 'sm.name', searchable: true },
+                { data: 'name', name: 'strengths.name', searchable: true },
+                { data: 'entity_name', name: 'entities.name', searchable: true },
+                { data: 'display_order', name: 'strengths.display_order', searchable: false },
             ],
             "infoCallback": function(settings, start, end, max, total, pre) {
                 $('#table_info').html(total + '/' + max)
@@ -74,7 +65,8 @@ app.component('strengthList', {
         $('.add_new_button').html(
             '<a href="#!/product-pkg/strength/add" type="button" class="btn btn-secondary" dusk="add-btn">' +
             'Add Strength' +
-            '</a>'
+            '</a>' +
+            '<a role="button" id="open" data-toggle="modal"  data-target="#sms-tempalte-filter" class="btn btn-img"> <img src="' + image_scr + '" alt="Filter" onmouseover=this.src="' + image_scr1 + '" onmouseout=this.src="' + image_scr + '"></a>'
         );
 
         $('.btn-add-close').on("click", function() {
@@ -85,17 +77,10 @@ app.component('strengthList', {
             $('#strengths_list').DataTable().ajax.reload();
         });
 
-        $('.dataTables_length select').select2();
-
-        $scope.clear_search = function() {
+        /*$scope.clear_search = function() {
             $('#search_strength').val('');
             $('#strengths_list').DataTable().search('').draw();
-        }
-
-        var dataTables = $('#strengths_list').dataTable();
-        $("#search_strength").keyup(function() {
-            dataTables.fnFilter(this.value);
-        });
+        }*/
 
         //DELETE
         $scope.deleteStrength = function($id) {
@@ -104,25 +89,24 @@ app.component('strengthList', {
         $scope.deleteConfirm = function() {
             $id = $('#strength_id').val();
             $http.get(
-                strength_delete_data_url + '/' + $id,
+                laravel_routes['deleteStrength'], {
+                    params: {
+                        id: $id,
+                    }
+                }
             ).then(function(response) {
                 if (response.data.success) {
-                    $noty = new Noty({
-                        type: 'success',
-                        layout: 'topRight',
-                        text: 'Strength Deleted Successfully',
-                    }).show();
-                    setTimeout(function() {
-                        $noty.close();
-                    }, 3000);
-                    $('#strengths_list').DataTable().ajax.reload(function(json) {});
-                    $location.path('/product-pkg/strength/list');
+                    custom_noty('success', response.data.message);
+                    $('#strengths_list').DataTable().ajax.reload();
+                    $scope.$apply();
+                } else {
+                    custom.noty('error', response.data.errors);
                 }
             });
         }
 
         //FOR FILTER
-        $('#strength_code').on('keyup', function() {
+        /*$('#strength_code').on('keyup', function() {
             dataTables.fnFilter();
         });
         $('#strength_name').on('keyup', function() {
@@ -140,7 +124,7 @@ app.component('strengthList', {
             $("#mobile_no").val('');
             $("#email").val('');
             dataTables.fnFilter();
-        }
+        }*/
 
         $rootScope.loading = false;
     }
@@ -150,7 +134,6 @@ app.component('strengthList', {
 app.component('strengthForm', {
     templateUrl: strength_form_template_url,
     controller: function($http, $location, HelperService, $scope, $routeParams, $rootScope) {
-        get_form_data_url = typeof($routeParams.id) == 'undefined' ? laravel_routes['getStrengthFormData'] : laravel_routes['getStrengthFormData'] + '/' + $routeParams.id;
         var self = this;
         self.hasPermission = HelperService.hasPermission;
         self.angular_routes = angular_routes;
@@ -164,6 +147,7 @@ app.component('strengthForm', {
             self.strength = response.data.strength;
             self.extras = response.data.extras;
             self.action = response.data.action;
+            self.theme = response.data.theme;
             $rootScope.loading = false;
             if (self.action == 'Edit') {
                 if (self.strength.deleted_at) {
@@ -180,27 +164,22 @@ app.component('strengthForm', {
         var v = jQuery(form_id).validate({
             ignore: '',
             rules: {
-                'main_category_id': {
+                'name': {
                     required: true,
+                    minlength: 3,
+                    maxlength: 191,
                 },
-                'category_id': {
-                    required: true,
-                },
-                'strength_id': {
-                    required: true,
-                },
-                'package_size': {
+                'type_id': {
                     required: true,
                 },
                 'display_order': {
                     required: true,
-                },
-                'special_price': {
-                    required: true,
+                    minlength: 3,
+                    maxlength: 8,
                 },
             },
             invalidHandler: function(event, validator) {
-                checkAllTabNoty()
+                custom_noty('error', 'You have errors,Please check all tabs');
             },
             submitHandler: function(form) {
                 let formData = new FormData($(form_id)[0]);
@@ -220,7 +199,11 @@ app.component('strengthForm', {
                         } else {
                             if (!res.success == true) {
                                 $('#submit').button('reset');
-                                showErrorNoty(res)
+                                var errors = '';
+                                for (var i in res.errors) {
+                                    errors += '<li>' + res.errors[i] + '</li>';
+                                }
+                                custom_noty('error', errors);
                             } else {
                                 $('#submit').button('reset');
                                 $location.path('/product-pkg/strength/list');
@@ -230,7 +213,7 @@ app.component('strengthForm', {
                     })
                     .fail(function(xhr) {
                         $('#submit').button('reset');
-                        showServerErrorNoty()
+                        custom_noty('error', 'Something went wrong at server');
                     });
             }
         });

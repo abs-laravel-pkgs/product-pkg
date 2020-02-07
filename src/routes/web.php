@@ -17,7 +17,7 @@ Route::group(['namespace' => 'Abs\ProductPkg', 'middleware' => ['web', 'auth'], 
 	Route::get('/strengths/get-list', 'StrengthController@getStrengthList')->name('getStrengthList');
 	Route::get('/strength/get-form-data', 'StrengthController@getStrengthFormData')->name('getStrengthFormData');
 	Route::post('/strength/save', 'StrengthController@saveStrength')->name('saveStrength');
-	Route::get('/strength/delete/{id}', 'StrengthController@deleteItem')->name('deleteStrength');
+	Route::get('/strength/delete', 'StrengthController@deleteStrength')->name('deleteStrength');
 
 	//Items
 	Route::get('/items/get-list', 'ItemController@getItemList')->name('getItemList');

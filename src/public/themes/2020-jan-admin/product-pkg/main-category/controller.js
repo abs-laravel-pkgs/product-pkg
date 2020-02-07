@@ -82,11 +82,6 @@ app.component('mainCategoryList', {
         //     $('#main_category_list').DataTable().search('').draw();
         // }
 
-        // var dataTables = $('#main_category_list').dataTable();
-        // $("#search_main-category").keyup(function() {
-        //     dataTables.fnFilter(this.value);
-        // });
-
         //DELETE
         $scope.deleteMainCategory = function($id) {
             $('#main_category_id').val($id);
