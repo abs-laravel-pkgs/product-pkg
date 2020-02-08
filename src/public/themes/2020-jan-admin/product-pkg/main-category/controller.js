@@ -204,17 +204,17 @@ app.component('mainCategoryForm', {
                     maxlength: 191,
                 },
                 'icon_id': {
-                    required: function() {
-                        if (self.action == 'Edit') {
-                            if (self.attachment) {
-                                return false;
-                            } else {
-                                return true;
-                            }
-                        } else {
-                            return true;
-                        }
-                    },
+                    // required: function() {
+                    //     if (self.action == 'Edit') {
+                    //         if (self.attachment) {
+                    //             return false;
+                    //         } else {
+                    //             return true;
+                    //         }
+                    //     } else {
+                    //         return true;
+                    //     }
+                    // },
                     extension: "jpg|jpeg|png|ico|bmp|svg|gif",
                 },
             },

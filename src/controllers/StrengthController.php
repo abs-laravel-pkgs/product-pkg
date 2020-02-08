@@ -32,6 +32,7 @@ class StrengthController extends Controller {
 			->orderby('strengths.id', 'desc');
 
 		return Datatables::of($strengths)
+			->rawColumns(['action', 'name'])
 			->addColumn('name', function ($strengths) {
 				$status = $strengths->status == 'Active' ? 'green' : 'red';
 				return '<span class="status-indicator ' . $status . '"></span>' . $strengths->name;
