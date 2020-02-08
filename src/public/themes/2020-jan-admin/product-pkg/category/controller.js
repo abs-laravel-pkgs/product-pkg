@@ -235,7 +235,6 @@ app.component('categoryForm', {
                 'display_order': {
                     required: true,
                     number: true,
-                    minlength: 3,
                     maxlength: 8,
                 },
                 'package_type_id': {

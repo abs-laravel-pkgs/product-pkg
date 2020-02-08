@@ -174,7 +174,6 @@ app.component('strengthForm', {
                 },
                 'display_order': {
                     required: true,
-                    minlength: 3,
                     maxlength: 8,
                 },
             },

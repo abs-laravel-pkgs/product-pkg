@@ -196,7 +196,6 @@ app.component('mainCategoryForm', {
                 },
                 'display_order': {
                     required: true,
-                    minlength: 3,
                     maxlength: 8,
                 },
                 'seo_name': {
