@@ -14,9 +14,25 @@ class Item extends Model {
 	protected $table = 'items';
 	public $timestamps = true;
 	protected $fillable = [
-		'question',
-		'answer',
+		'category_id',
+		'strength_id',
+		'package_size',
+		'display_order',
+		'regular_price',
+		'special_price',
 	];
+
+	public function mainCategory() {
+		return $this->belongsTo('Abs\ProductPkg\MainCategory');
+	}
+
+	public function category() {
+		return $this->belongsTo('Abs\ProductPkg\Category');
+	}
+
+	public function strengths() {
+		return $this->belongsTo('Abs\ProductPkg\Strength');
+	}
 
 	public static function createFromObject($record_data) {
 

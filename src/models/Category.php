@@ -27,7 +27,7 @@ class Category extends Model {
 	];
 
 	public function strengths() {
-		return $this->belongsToMany('App\Strength');
+		return $this->belongsToMany('Abs\ProductPkg\Strength');
 	}
 
 	public function image() {

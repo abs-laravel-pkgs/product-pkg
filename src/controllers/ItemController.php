@@ -64,11 +64,11 @@ class ItemController extends Controller {
 				'mc.name as main_category_name',
 				'items.display_order',
 				'items.special_price',
-				'items.has_free',
 				'items.free_qty',
-				'items.has_free_shipping',
 				'sm.name as shipping_method_name',
 				'items.deleted_at',
+				DB::raw('IF(items.has_free = 1, "Yes","No") as has_free'),
+				DB::raw('IF(items.has_free_shipping = 1, "Yes","No") as has_free_shipping'),
 			])
 			->where('c.company_id', $this->company_id)
 			->orderby('c.display_order', 'asc')
@@ -85,14 +85,11 @@ class ItemController extends Controller {
 			->addColumn('action', function ($item) {
 				$img1 = asset('public/themes/' . $this->data['theme'] . '/img/content/table/edit-yellow.svg');
 				$img1_active = asset('public/themes/' . $this->data['theme'] . '/img/content/table/edit-yellow-active.svg');
-				$img2 = asset('public/themes/' . $this->data['theme'] . '/img/content/table/eye.svg');
-				$img2_active = asset('public/themes/' . $this->data['theme'] . '/img/content/table/eye-active.svg');
 				$img_delete = asset('public/themes/' . $this->data['theme'] . '/img/content/table/delete-default.svg');
 				$img_delete_active = asset('public/themes/' . $this->data['theme'] . '/img/content/table/delete-active.svg');
 				$output = '';
 				$output .= '<a href="#!/product-pkg/item/edit/' . $item->id . '" id = "" ><img src="' . $img1 . '" alt="Edit" class="img-responsive" onmouseover=this.src="' . $img1_active . '" onmouseout=this.src="' . $img1 . '"></a>
-					<a href="#!/product-pkg/item/view/' . $item->id . '" id = "" ><img src="' . $img2 . '" alt="View" class="img-responsive" onmouseover=this.src="' . $img2_active . '" onmouseout=this.src="' . $img2 . '"></a>
-					<a href="javascript:;"  data-toggle="modal" data-target="#item-delete-modal" onclick="angular.element(this).scope().deleteRoleconfirm(' . $item->id . ')" title="Delete"><img src="' . $img_delete . '" alt="Delete" class="img-responsive delete" onmouseover=this.src="' . $img_delete_active . '" onmouseout=this.src="' . $img_delete . '"></a>
+					<a href="javascript:;"  data-toggle="modal" data-target="#item-delete-modal" onclick="angular.element(this).scope().deleteItem(' . $item->id . ')" title="Delete"><img src="' . $img_delete . '" alt="Delete" class="img-responsive delete" onmouseover=this.src="' . $img_delete_active . '" onmouseout=this.src="' . $img_delete . '"></a>
 					';
 				return $output;
 			})
@@ -105,17 +102,36 @@ class ItemController extends Controller {
 			$item = new Item;
 			$action = 'Add';
 		} else {
-			$item = Item::withTrashed()->find($id);
+			$item = Item::withTrashed()->with([
+				'category',
+				'category.mainCategory',
+				'strengths',
+			])
+				->where('items.id', $id)
+				->first();
+			$this->data['category_list'] = collect(Category::where('main_category_id', $item->category->main_category_id)->select('id', 'name')->get())->prepend(['name' => 'Select Category', 'id' => '']);
 			$action = 'Edit';
 		}
 		$this->data['item'] = $item;
 		$this->data['extras'] = [
-			'main_category_list' => MainCategory::getList(),
-			'category_list' => Category::getList(),
-			'strength_list' => Strength::getList(),
+			'main_category_list' => collect(MainCategory::where('company_id', $this->company_id)->select('id', 'name')->get())->prepend(['name' => 'Select Main Category', 'id' => '']),
+			/*'shipping_method_list' => collect(ShippingMethod::where('company_id', $this->company_id)->select('id', 'name')->get())->prepend(['name' => 'Select Shipping Method', 'id' => '']),*/
+			'strength_list' => collect(Strength::where('company_id', $this->company_id)->select('id', 'name')->get())->prepend(['name' => 'Select Strength', 'id' => '']),
 		];
 		$this->data['action'] = $action;
+		$this->data['theme'];
 
+		return response()->json($this->data);
+	}
+
+	public function getCategory(Request $r) {
+		$id = $r->id;
+		if ($id) {
+			$category_list = collect(Category::where('main_category_id', $id)->select('id', 'name')->get())->prepend(['name' => 'Select Category', 'id' => '']);
+			$this->data['category_list'] = $category_list;
+		} else {
+			return response()->json(['success' => false, 'error' => 'Category not found']);
+		}
 		return response()->json($this->data);
 	}
 
@@ -123,22 +139,24 @@ class ItemController extends Controller {
 		// dd($request->all());
 		try {
 			$error_messages = [
-				'code.required' => 'Item Code is Required',
-				'code.max' => 'Maximum 255 Characters',
-				'code.min' => 'Minimum 3 Characters',
-				'code.unique' => 'Item Code is already taken',
-				'name.required' => 'Item Name is Required',
-				'name.max' => 'Maximum 255 Characters',
-				'name.min' => 'Minimum 3 Characters',
+				'category_id.required' => 'Category is Required',
+				'strength_id.required' => 'Strength is Required',
+				'package_size.required' => 'Package Size is Required',
+				'package_size.unique' => 'Package Size is already taken',
+				'display_order.required' => 'Display Order is Required',
+				'regular_price.required' => 'Regular price is Required',
+				'special_price.required' => 'Special price is Required',
 			];
 			$validator = Validator::make($request->all(), [
-				'question' => [
+				'category_id' => 'required',
+				'strength_id' => 'required',
+				'package_size' => [
 					'required:true',
-					'max:255',
-					'min:3',
-					'unique:items,question,' . $request->id . ',id,company_id,' . Auth::user()->company_id,
+					'unique:items,package_size,' . $request->id . ',id,category_id,' . $request->category_id . ',strength_id,' . $request->strength_id,
 				],
-				'answer' => 'required|max:255|min:3',
+				'display_order' => 'required',
+				'regular_price' => 'required',
+				'special_price' => 'required',
 			], $error_messages);
 			if ($validator->fails()) {
 				return response()->json(['success' => false, 'errors' => $validator->errors()->all()]);
@@ -156,7 +174,21 @@ class ItemController extends Controller {
 				$item->updated_at = Carbon::now();
 			}
 			$item->fill($request->all());
-			$item->company_id = Auth::user()->company_id;
+			// $item->company_id = Auth::user()->company_id;
+			if ($request->has_free == 'Yes') {
+				$item->has_free = 1;
+				$item->free_qty = $request->free_qty;
+			} else {
+				$item->has_free = 0;
+				$item->free_qty = 0;
+			}
+			if ($request->has_free_shipping == 'Yes') {
+				$item->has_free_shipping = 1;
+				$item->shipping_method_id = $request->shipping_method_id;
+			} else {
+				$item->has_free_shipping = 0;
+			}
+			$item->per_qty_price = 0; //per qty price
 			if ($request->status == 'Inactive') {
 				$item->deleted_at = Carbon::now();
 				$item->deleted_by_id = Auth::user()->id;
@@ -170,12 +202,12 @@ class ItemController extends Controller {
 			if (!($request->id)) {
 				return response()->json([
 					'success' => true,
-					'message' => 'FAQ Added Successfully',
+					'message' => 'Item Added Successfully',
 				]);
 			} else {
 				return response()->json([
 					'success' => true,
-					'message' => 'FAQ Updated Successfully',
+					'message' => 'Item Updated Successfully',
 				]);
 			}
 		} catch (Exceprion $e) {
@@ -187,8 +219,15 @@ class ItemController extends Controller {
 		}
 	}
 
-	public function deleteItem($id) {
-		$delete_status = Item::withTrashed()->where('id', $id)->forceDelete();
-		return response()->json(['success' => true]);
+	public function deleteItem(Request $request) {
+		DB::beginTransaction();
+		try {
+			Item::withTrashed()->where('id', $request->id)->forceDelete();
+			DB::commit();
+			return response()->json(['success' => true, 'message' => 'Item Deleted Successfully']);
+		} catch (Exception $e) {
+			DB::rollBack();
+			return response()->json(['success' => false, 'errors' => ['Exception Error' => $e->getMessage()]]);
+		}
 	}
 }

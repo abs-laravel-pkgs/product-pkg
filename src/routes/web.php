@@ -22,8 +22,9 @@ Route::group(['namespace' => 'Abs\ProductPkg', 'middleware' => ['web', 'auth'], 
 	//Items
 	Route::get('/items/get-list', 'ItemController@getItemList')->name('getItemList');
 	Route::get('/item/get-form-data', 'ItemController@getItemFormData')->name('getItemFormData');
+	Route::get('/item/get-category-list', 'ItemController@getCategory')->name('getCategory');
 	Route::post('/item/save', 'ItemController@saveItem')->name('saveItem');
-	Route::get('/item/delete/{id}', 'ItemController@deleteItem')->name('deleteItem');
+	Route::get('/item/delete', 'ItemController@deleteItem')->name('deleteItem');
 });
 
 Route::group(['namespace' => 'Abs\ProductPkg', 'middleware' => ['web'], 'prefix' => 'product-pkg'], function () {

@@ -21,8 +21,6 @@ app.component('itemList', {
         $scope.loading = true;
         var self = this;
         self.hasPermission = HelperService.hasPermission;
-        var table_scroll;
-        table_scroll = $('.page-main-content').height() - 37;
         var dataTable = $('#items_list').DataTable({
             "dom": dom_structure,
             "language": {
@@ -74,7 +72,8 @@ app.component('itemList', {
         $('.add_new_button').html(
             '<a href="#!/product-pkg/item/add" type="button" class="btn btn-secondary" dusk="add-btn">' +
             'Add Item' +
-            '</a>'
+            '</a>' +
+            '<a role="button" id="open" data-toggle="modal"  data-target="#sms-tempalte-filter" class="btn btn-img"> <img src="' + image_scr + '" alt="Filter" onmouseover=this.src="' + image_scr1 + '" onmouseout=this.src="' + image_scr + '"></a>'
         );
 
         $('.btn-add-close').on("click", function() {
@@ -85,9 +84,7 @@ app.component('itemList', {
             $('#items_list').DataTable().ajax.reload();
         });
 
-        $('.dataTables_length select').select2();
-
-        $scope.clear_search = function() {
+        /*$scope.clear_search = function() {
             $('#search_item').val('');
             $('#items_list').DataTable().search('').draw();
         }
@@ -95,7 +92,7 @@ app.component('itemList', {
         var dataTables = $('#items_list').dataTable();
         $("#search_item").keyup(function() {
             dataTables.fnFilter(this.value);
-        });
+        });*/
 
         //DELETE
         $scope.deleteItem = function($id) {
@@ -104,25 +101,24 @@ app.component('itemList', {
         $scope.deleteConfirm = function() {
             $id = $('#item_id').val();
             $http.get(
-                item_delete_data_url + '/' + $id,
+                laravel_routes['deleteItem'], {
+                    params: {
+                        id: $id,
+                    }
+                }
             ).then(function(response) {
                 if (response.data.success) {
-                    $noty = new Noty({
-                        type: 'success',
-                        layout: 'topRight',
-                        text: 'Item Deleted Successfully',
-                    }).show();
-                    setTimeout(function() {
-                        $noty.close();
-                    }, 3000);
-                    $('#items_list').DataTable().ajax.reload(function(json) {});
-                    $location.path('/product-pkg/item/list');
+                    custom_noty('success', response.data.message);
+                    $('#items_list').DataTable().ajax.reload();
+                    $scope.$apply();
+                } else {
+                    custom_noty('error', response.data.errors);
                 }
             });
         }
 
         //FOR FILTER
-        $('#item_code').on('keyup', function() {
+        /*$('#item_code').on('keyup', function() {
             dataTables.fnFilter();
         });
         $('#item_name').on('keyup', function() {
@@ -140,7 +136,7 @@ app.component('itemList', {
             $("#mobile_no").val('');
             $("#email").val('');
             dataTables.fnFilter();
-        }
+        }*/
 
         $rootScope.loading = false;
     }
@@ -150,7 +146,6 @@ app.component('itemList', {
 app.component('itemForm', {
     templateUrl: item_form_template_url,
     controller: function($http, $location, HelperService, $scope, $routeParams, $rootScope) {
-        get_form_data_url = typeof($routeParams.id) == 'undefined' ? laravel_routes['getItemFormData'] : laravel_routes['getItemFormData'] + '/' + $routeParams.id;
         var self = this;
         self.hasPermission = HelperService.hasPermission;
         self.angular_routes = angular_routes;
@@ -160,10 +155,12 @@ app.component('itemForm', {
             params: {
                 'id': typeof($routeParams.id) == 'undefined' ? null : $routeParams.id,
             }
-        }).then(function(response) {
+        }).then(function(response) { console.log(response.data);
             self.item = response.data.item;
             self.extras = response.data.extras;
+            self.category_list = response.data.category_list;
             self.action = response.data.action;
+            self.theme = response.data.theme;
             $rootScope.loading = false;
             if (self.action == 'Edit') {
                 if (self.item.deleted_at) {
@@ -171,10 +168,35 @@ app.component('itemForm', {
                 } else {
                     self.switch_value = 'Active';
                 }
+                if(self.item.has_free == 1) {
+                    self.has_free = 'Yes';
+                } else {
+                    self.has_free = 'No';
+                }
+                if(self.item.has_free_shipping == 1) {
+                    self.has_free_shipping = 'Yes';
+                } else {
+                    self.has_free_shipping = 'No';
+                }
             } else {
                 self.switch_value = 'Active';
+                self.has_free = 'No';
+                self.has_free_shipping = 'No';
             }
         });
+
+        $scope.onSelectedCategory = function($id) {
+            $http.get(
+                laravel_routes['getCategory'], {
+                    params: {
+                        id: $id,
+                    }
+                }
+            ).then(function(response) {
+                console.log(response.data);
+                self.category_list = response.data.category_list;
+            });
+        }
 
         var form_id = '#form';
         var v = jQuery(form_id).validate({
@@ -191,16 +213,20 @@ app.component('itemForm', {
                 },
                 'package_size': {
                     required: true,
+                    number: true,
                 },
                 'display_order': {
                     required: true,
+                    number: true,
+                },
+                'regular_price': {
+                    required: true,
+                    number: true,
                 },
                 'special_price': {
                     required: true,
+                    number: true,
                 },
-            },
-            invalidHandler: function(event, validator) {
-                checkAllTabNoty()
             },
             submitHandler: function(form) {
                 let formData = new FormData($(form_id)[0]);
@@ -220,7 +246,11 @@ app.component('itemForm', {
                         } else {
                             if (!res.success == true) {
                                 $('#submit').button('reset');
-                                showErrorNoty(res)
+                                var errors = '';
+                                for (var i in res.errors) {
+                                    errors += '<li>' + res.errors[i] + '</li>';
+                                }
+                                custom_noty('error', errors);
                             } else {
                                 $('#submit').button('reset');
                                 $location.path('/product-pkg/item/list');
@@ -230,7 +260,7 @@ app.component('itemForm', {
                     })
                     .fail(function(xhr) {
                         $('#submit').button('reset');
-                        showServerErrorNoty()
+                        custom_noty('error', 'Something went wrong at server');
                     });
             }
         });

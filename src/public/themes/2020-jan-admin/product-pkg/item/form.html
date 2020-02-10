@@ -8,7 +8,7 @@
                         <div class="page-header-inner page-title display-inline-block">
                             <div class="previous-page">
                                 <a href="#!/product-pkg/item/list">
-                                    <img src="./public/img/content/previous.svg" class="img-responsive">
+                                    <img src="./public/themes/{{$ctrl.theme}}/img/content/previous.svg" class="img-responsive">
                                 </a>
                             </div>
                         </div><!-- Page Header Inner -->
@@ -61,7 +61,7 @@
                                                                     *
                                                                 </span>
                                                             </label>
-                                                            <md-select ng-model="$ctrl.item.main_category_id" md-on-close="clearSearchTerm()" data-md-container-class="selectdemoSelectHeader" placeholder="Select Main Category">
+                                                            <md-select ng-model="$ctrl.item.category.main_category_id" ng-change="onSelectedCategory($ctrl.item.category.main_category_id); $ctrl.item.category_id=''" md-on-close="clearSearchTerm()" data-md-container-class="selectdemoSelectHeader" placeholder="Select Main Category">
                                                                 <md-select-header class="demo-select-header">
                                                                     <input ng-model="searchTerm" type="search" placeholder="Search for a Main Category" class="demo-header-searchbox md-text">
                                                                 </md-select-header>
@@ -69,7 +69,7 @@
                                                                     <md-option ng-value="main_category.id" ng-repeat="main_category in $ctrl.extras.main_category_list | filter:searchTerm">{{main_category.name}}</md-option>
                                                                 </md-optgroup>
                                                             </md-select>
-                                                            <input type="hidden" class="form-control" name="main_category_id" value="{{$ctrl.item.main_category_id}}">
+                                                            <input type="hidden" class="required" name="main_category_id" id="main_category_id" value="{{$ctrl.item.category.main_category_id}}">
                                                         </div>
                                                     </div>
                                                     <div class="col-md-3">
@@ -82,10 +82,10 @@
                                                             </label>
                                                             <md-select ng-model="$ctrl.item.category_id" md-on-close="clearSearchTerm()" data-md-container-class="selectdemoSelectHeader" placeholder="Select Category">
                                                                 <md-select-header class="demo-select-header">
-                                                                    <input ng-model="searchTerm" type="search" placeholder="Search for a Category" class="demo-header-searchbox md-text">
+                                                                    <input ng-model="searchTerm1" type="search" placeholder="Search for a Category" class="demo-header-searchbox md-text">
                                                                 </md-select-header>
                                                                 <md-optgroup>
-                                                                    <md-option ng-value="category.id" ng-repeat="category in $ctrl.extras.category_list | filter:searchTerm">{{category.name}}</md-option>
+                                                                    <md-option ng-value="category.id" ng-repeat="category in $ctrl.category_list | filter:searchTerm1">{{category.name}}</md-option>
                                                                 </md-optgroup>
                                                             </md-select>
                                                             <input type="hidden" class="form-control" name="category_id" value="{{$ctrl.item.category_id}}">
@@ -94,20 +94,20 @@
                                                     <div class="col-md-3">
                                                         <div class="form-group">
                                                             <label>
-                                                                Stregnth
+                                                                Strength
                                                                 <span class="mandatory">
                                                                     *
                                                                 </span>
                                                             </label>
-                                                            <md-select ng-model="$ctrl.item.stregth_id" md-on-close="clearSearchTerm()" data-md-container-class="selectdemoSelectHeader" placeholder="Select Stregth">
+                                                            <md-select ng-model="$ctrl.item.strength_id" md-on-close="clearSearchTerm()" data-md-container-class="selectdemoSelectHeader" placeholder="Select Strength">
                                                                 <md-select-header class="demo-select-header">
-                                                                    <input ng-model="searchTerm" type="search" placeholder="Search for a Stregth" class="demo-header-searchbox md-text">
+                                                                    <input ng-model="searchTerm2" type="search" placeholder="Search for a Strength" class="demo-header-searchbox md-text">
                                                                 </md-select-header>
                                                                 <md-optgroup>
-                                                                    <md-option ng-value="stregth.id" ng-repeat="stregth in $ctrl.extras.strength_list | filter:searchTerm">{{stregth.name}}</md-option>
+                                                                    <md-option ng-value="stregth.id" ng-repeat="stregth in $ctrl.extras.strength_list | filter:searchTerm2">{{stregth.name}}</md-option>
                                                                 </md-optgroup>
                                                             </md-select>
-                                                            <input type="hidden" class="form-control" name="stregth_id" value="{{$ctrl.item.stregth_id}}">
+                                                            <input type="hidden" class="form-control" name="strength_id" value="{{$ctrl.item.strength_id}}">
                                                         </div>
                                                     </div>
                                                     <div class="col-md-3">
@@ -118,7 +118,7 @@
                                                                     *
                                                                 </span>
                                                             </label>
-                                                            <input type="text" name="package_size" ng-model='$ctrl.item.package_size' class="form-control " placeholder="">
+                                                            <input type="text" name="package_size" ng-model='$ctrl.item.package_size' class="form-control required" placeholder="Enter Package Size" autocomplete="off" oninput="this.value = this.value.replace(/[^\d.]/g, '').replace(/(^[\d]{5})[\d]/g, '$1').replace(/(\..*)\./g, '$1').replace(/(\.[\d]{2})./g, '$1');">
                                                         </div>
                                                     </div>
                                                 </div><!-- Row -->
@@ -131,7 +131,7 @@
                                                                     *
                                                                 </span>
                                                             </label>
-                                                            <input type="text" name="display_order" ng-model='$ctrl.item.display_order' class="form-control" placeholder="">
+                                                            <input type="text" name="display_order" ng-model='$ctrl.item.display_order' class="form-control required" placeholder="Enter Display Order" autocomplete="off" oninput="this.value = this.value.replace(/[^0-9]/g, '').replace(/(\..*)\./g, '$1');" minlength="3" maxlength="8">
                                                         </div>
                                                     </div>
                                                     <div class="col-md-3">
@@ -142,7 +142,7 @@
                                                                     *
                                                                 </span>
                                                             </label>
-                                                            <input type="text" name="regular_price" ng-model='$ctrl.item.regular_price' class="form-control " placeholder="">
+                                                            <input type="text" name="regular_price" ng-model='$ctrl.item.regular_price' class="form-control required" placeholder="Enter Regular Price" oninput="this.value = this.value.replace(/[^\d.]/g, '').replace(/(^[\d]{8})[\d]/g, '$1').replace(/(\..*)\./g, '$1').replace(/(\.[\d]{2})./g, '$1');">
                                                         </div>
                                                     </div>
                                                     <div class="col-md-3">
@@ -153,7 +153,7 @@
                                                                     *
                                                                 </span>
                                                             </label>
-                                                            <input type="text" name="special_price" ng-model='$ctrl.item.special_price' class="form-control " placeholder="">
+                                                            <input type="text" name="special_price" ng-model='$ctrl.item.special_price' class="form-control required" placeholder="Enter Special Price" autocomplete="off" oninput="this.value = this.value.replace(/[^\d.]/g, '').replace(/(^[\d]{8})[\d]/g, '$1').replace(/(\..*)\./g, '$1').replace(/(\.[\d]{2})./g, '$1');">
                                                         </div>
                                                     </div>
                                                     <div class="col-md-3">
@@ -164,15 +164,17 @@
                                                                     *
                                                                 </span>
                                                             </label>
-                                                            <md-switch ng-model="$ctrl.item.has_free" aria-label="Switch 2" ng-true-value="'0'" ng-false-value="'1'" class="md-warn">
-                                                                {{ $ctrl.item.has_free == 1 ? 'Yes' : 'No' }}
-                                                            </md-switch>
-                                                            <input type="hidden" name="has_free" value="{{$ctrl.item.has_free}}">
+                                                            <div class="md-switch-two">
+                                                                <md-switch ng-model="$ctrl.has_free" aria-label="Switch 2" ng-true-value="'No'" ng-false-value="'Yes'" class="md-warn">
+                                                                    {{ $ctrl.has_free }}
+                                                                </md-switch>
+                                                                <input type="hidden" name="has_free" value="{{$ctrl.has_free}}">
+                                                            </div>
                                                         </div><!-- Field -->
                                                     </div><!-- Column -->
                                                 </div><!-- Row -->
                                                 <div class="row">
-                                                    <div class="col-md-3" ng-show="$ctrl.item.has_free == 1">
+                                                    <div class="col-md-3" ng-if="$ctrl.has_free == 'Yes'">
                                                         <div class="form-group">
                                                             <label>
                                                                 Free Qty
@@ -180,7 +182,7 @@
                                                                     *
                                                                 </span>
                                                             </label>
-                                                            <input type="text" name="free_qty" ng-model='$ctrl.item.free_qty' class="form-control " placeholder="">
+                                                            <input type="text" name="free_qty" ng-model='$ctrl.item.free_qty' class="form-control required" placeholder="Enter Free Qty" autocomplete="off" oninput="this.value = this.value.replace(/[^\d.]/g, '').replace(/(^[\d]{5})[\d]/g, '$1').replace(/(\..*)\./g, '$1').replace(/(\.[\d]{2})./g, '$1');">
                                                         </div>
                                                     </div>
                                                     <div class="col-md-3">
@@ -191,13 +193,15 @@
                                                                     *
                                                                 </span>
                                                             </label>
-                                                            <md-switch ng-model="$ctrl.item.has_free_shipping" aria-label="Switch 2" ng-true-value="'0'" ng-false-value="'1'" class="md-warn">
-                                                                {{ $ctrl.item.has_free_shipping == 1 ? 'Yes' : 'No'}}
-                                                            </md-switch>
-                                                            <input type="hidden" name="status" value="{{$ctrl.item.has_free_shipping}}">
+                                                            <div class="md-switch-two">
+                                                                <md-switch ng-model="$ctrl.has_free_shipping" aria-label="Switch 2" ng-true-value="'No'" ng-false-value="'Yes'" class="md-warn">
+                                                                    {{ $ctrl.has_free_shipping }}
+                                                                </md-switch>
+                                                                <input type="hidden" name="has_free_shipping" value="{{$ctrl.has_free_shipping}}">
+                                                            </div>
                                                         </div><!-- Field -->
                                                     </div><!-- Column -->
-                                                    <div class="col-md-3" ng-show="$ctrl.item.has_free_shipping == 1">
+                                                    <div class="col-md-3" ng-if="$ctrl.has_free_shipping == 'Yes'">
                                                         <div class="form-group">
                                                             <label>
                                                                 Free Shipping Method
@@ -205,15 +209,15 @@
                                                                     *
                                                                 </span>
                                                             </label>
-                                                            <md-select ng-model="$ctrl.item.stregth_id" md-on-close="clearSearchTerm()" data-md-container-class="selectdemoSelectHeader" placeholder="Select Stregth">
+                                                            <md-select ng-model="$ctrl.item.shipping_method_id" md-on-close="clearSearchTerm()" data-md-container-class="selectdemoSelectHeader" placeholder="Select Shipping Method">
                                                                 <md-select-header class="demo-select-header">
-                                                                    <input ng-model="searchTerm" type="search" placeholder="Search for a Stregth" class="demo-header-searchbox md-text">
+                                                                    <input ng-model="searchTerm4" type="search" placeholder="Search for a Shipping Method" class="demo-header-searchbox md-text">
                                                                 </md-select-header>
                                                                 <md-optgroup>
-                                                                    <md-option ng-value="stregth.id" ng-repeat="stregth in $ctrl.extras.strength_list | filter:searchTerm">{{stregth.name}}</md-option>
+                                                                    <md-option ng-value="shipping.id" ng-repeat="shipping in $ctrl.extras.shipping_method_list | filter:searchTerm4">{{shipping.name}}</md-option>
                                                                 </md-optgroup>
                                                             </md-select>
-                                                            <input type="hidden" class="form-control" name="stregth_id" value="{{$ctrl.item.stregth_id}}">
+                                                            <input type="hidden" class="form-control required" name="shipping_method_id" value="{{$ctrl.item.shipping_method_id}}">
                                                         </div>
                                                     </div>
                                                     <div class="col-md-3">
@@ -224,10 +228,10 @@
                                                                     *
                                                                 </span>
                                                             </label>
-                                                            <md-switch ng-model="$ctrl.item.deleted_at" aria-label="Switch 2" ng-true-value="'0'" ng-false-value="'1'" class="md-warn">
-                                                                {{ $ctrl.item.deleted_at ? 'Active' : 'Inactive' }}
+                                                            <md-switch ng-model="$ctrl.switch_value" aria-label="Switch 2" ng-true-value="'Inactive'" ng-false-value="'Active'" class="md-warn">
+                                                                {{ $ctrl.switch_value }}
                                                             </md-switch>
-                                                            <input type="hidden" name="deleted_at" value="{{$ctrl.item.deleted_at}}">
+                                                            <input type="hidden" name="status" value="{{$ctrl.switch_value}}">
                                                         </div><!-- Field -->
                                                     </div><!-- Column -->
                                                 </div><!-- Row -->
