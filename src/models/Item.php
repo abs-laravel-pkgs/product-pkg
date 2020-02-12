@@ -31,7 +31,11 @@ class Item extends Model {
 	}
 
 	public function strengths() {
-		return $this->belongsTo('Abs\ProductPkg\Strength');
+		return $this->belongsTo('Abs\ProductPkg\Strength', 'strength_id');
+	}
+
+	public function shippingMethods() {
+		return $this->belongsTo('Abs\ShippingMethodPkg\ShippingMethod', 'shipping_method_id');
 	}
 
 	public static function createFromObject($record_data) {

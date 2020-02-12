@@ -171,8 +171,12 @@ class MainCategoryController extends Controller {
 	public function deleteMainCategory(Request $request) {
 		DB::beginTransaction();
 		try {
+			$main_category = MainCategory::withTrashed()->where('id', $request->id)->first();
+			if (!is_null($main_category->icon_id)) {
+				Attachment::where('attachment_of_id', 21)->where('entity_id', $request->id)->forceDelete();
+			}
 			MainCategory::withTrashed()->where('id', $request->id)->forceDelete();
-			Attachment::where('attachment_of_id', 21)->where('entity_id', $request->id)->forceDelete();
+
 			DB::commit();
 			return response()->json(['success' => true, 'message' => 'Main Category Deleted Successfully']);
 		} catch (Exception $e) {

@@ -5,6 +5,7 @@ use Abs\ProductPkg\Category;
 use Abs\ProductPkg\Item;
 use Abs\ProductPkg\MainCategory;
 use Abs\ProductPkg\Strength;
+use Abs\ShippingMethodPkg\ShippingMethod;
 use App\Http\Controllers\Controller;
 use Auth;
 use Carbon\Carbon;
@@ -106,6 +107,7 @@ class ItemController extends Controller {
 				'category',
 				'category.mainCategory',
 				'strengths',
+				'shippingMethods',
 			])
 				->where('items.id', $id)
 				->first();
@@ -115,7 +117,7 @@ class ItemController extends Controller {
 		$this->data['item'] = $item;
 		$this->data['extras'] = [
 			'main_category_list' => collect(MainCategory::where('company_id', $this->company_id)->select('id', 'name')->get())->prepend(['name' => 'Select Main Category', 'id' => '']),
-			/*'shipping_method_list' => collect(ShippingMethod::where('company_id', $this->company_id)->select('id', 'name')->get())->prepend(['name' => 'Select Shipping Method', 'id' => '']),*/
+			'shipping_method_list' => collect(ShippingMethod::where('company_id', $this->company_id)->select('id', 'name')->get())->prepend(['name' => 'Select Shipping Method', 'id' => '']),
 			'strength_list' => collect(Strength::where('company_id', $this->company_id)->select('id', 'name')->get())->prepend(['name' => 'Select Strength', 'id' => '']),
 		];
 		$this->data['action'] = $action;
@@ -187,6 +189,7 @@ class ItemController extends Controller {
 				$item->shipping_method_id = $request->shipping_method_id;
 			} else {
 				$item->has_free_shipping = 0;
+				$item->shipping_method_id = NULL;
 			}
 			$item->per_qty_price = 0; //per qty price
 			if ($request->status == 'Inactive') {

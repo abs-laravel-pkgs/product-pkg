@@ -152,7 +152,7 @@ app.component('categoryForm', {
                 'id': typeof($routeParams.id) == 'undefined' ? null : $routeParams.id,
             }
         }).then(function(response) {
-            console.log(response.data);
+            // console.log(response.data);
             self.category = response.data.category;
             self.attachment = response.data.attachment;
             self.extras = response.data.extras;
@@ -181,7 +181,7 @@ app.component('categoryForm', {
                     self.is_best_selling = 'No';
                 }
                 if (self.attachment) {
-                    $scope.PreviewImage = base_url + 'public/uploads/category/small/' + self.attachment.name;
+                    $scope.PreviewImage = 'public/themes/' + self.theme + '/img/category_image/' + self.attachment.name;
                     $('#edited_file_name').val(self.attachment.name);
                 } else {
                     $('#edited_file_name').val('');
@@ -262,8 +262,8 @@ app.component('categoryForm', {
                     number: true,
                     min: 1,
                     max: 5,
-                    minlength: 1,
-                    maxlength: 4,
+                    //minlength: 1,
+                    //maxlength: 4,
                 },
                 'seo_name': {
                     required: true,

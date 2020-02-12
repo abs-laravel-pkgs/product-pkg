@@ -155,7 +155,7 @@ app.component('itemForm', {
             params: {
                 'id': typeof($routeParams.id) == 'undefined' ? null : $routeParams.id,
             }
-        }).then(function(response) { console.log(response.data);
+        }).then(function(response) { //console.log(response.data);
             self.item = response.data.item;
             self.extras = response.data.extras;
             self.category_list = response.data.category_list;
