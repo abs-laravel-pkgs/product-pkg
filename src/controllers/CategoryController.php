@@ -212,7 +212,7 @@ class CategoryController extends Controller {
 		DB::beginTransaction();
 		try {
 			Category::withTrashed()->where('id', $request->id)->forceDelete();
-			Attachment::where('attachment_of_id', 21)->where('entity_id', $request->id)->forceDelete();
+			Attachment::where('company_id', Auth::user()->company_id)->where('attachment_of_id', 21)->where('entity_id', $request->id)->forceDelete();
 			DB::commit();
 			return response()->json(['success' => true, 'message' => 'Category Deleted Successfully']);
 		} catch (Exception $e) {
