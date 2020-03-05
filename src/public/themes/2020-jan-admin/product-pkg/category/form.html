@@ -288,16 +288,17 @@
                                                     </div>
                                                 </div><!-- Row -->
                                                 <div class="row">
-                                                    <div class="col-md-3">
+                                                    <div class="col-md-12">
                                                         <div class="form-group">
                                                             <label>Description</label>
                                                             <textarea name="description" ng-model="$ctrl.category.description" class="form-control" placeholder="Enter Description" rows="3" autocomplete="off"></textarea>
                                                         </div>
                                                     </div>
-                                                    <div class="col-md-3">
+                                                    <div class="col-md-12">
                                                         <div class="form-group">
                                                             <label>Usage</label>
-                                                            <textarea name="usage" ng-model="$ctrl.category.usage" class="form-control" placeholder="Enter Usage" rows="3" autocomplete="off"></textarea>
+                                                            <div text-angular ng-model="$ctrl.category.usage"></div>
+                                                            <input type="hidden" name="usage" value="{{$ctrl.category.usage}}" />
                                                         </div>
                                                     </div>
                                                     <div class="col-md-3" ng-if="$ctrl.action == 'Edit'">
