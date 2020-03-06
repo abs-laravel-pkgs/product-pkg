@@ -115,7 +115,7 @@ class CategoryController extends Controller {
 	}
 
 	public function saveCategory(Request $request) {
-		//dd($request->all());
+		// dd($request->all());
 		try {
 			$error_messages = [
 				'name.required' => 'Name is Required',

@@ -15,6 +15,7 @@ app.config(['$routeProvider', function($routeProvider) {
     });
 }]);
 
+app.requires.push('textAngular');
 app.component('categoryList', {
     templateUrl: category_list_template_url,
     controller: function($http, $location, HelperService, $scope, $routeParams, $rootScope, $location) {
