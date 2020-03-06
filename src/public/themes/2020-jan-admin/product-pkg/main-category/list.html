@@ -32,3 +32,54 @@
         </div><!-- Modal Content -->
     </div><!-- Modal Dialog -->
 </div><!-- Modal Content -->
+<div class="modal fade modal-filter" id="modal-main-categories-list-filter" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="btn btn-colse btn-img btn-filter-close" data-dismiss="modal" aria-label="Close">
+                    <img src="./public/img/content/modal/close-circle.svg" alt="Modal" class="img-responsive" onmouseover="this.src='./public/img/content/modal/close-circle-active.svg'" onmouseout="this.src='./public/img/content/modal/close-circle.svg'">
+                </button>
+                <h5 class="modal-title">Filter</h5>
+                <div class="filter-reset">
+                    <p class="text-red" ng-click="reset_filter(); $ctrl.status=''">Reset Filter</p>
+                </div>
+            </div><!-- Modal Header -->
+            <div class="modal-body modal-sm-body">
+                <div class="row modal-row">
+                    <div class="col-md-12">
+                        <div class="input-text form-group">
+                            <label>Name</label>
+                            <div class="form-group">
+                                <input type="text" class="form-control" name="name" id="name" placeholder="Enter Name" autocomplete="off" />
+                            </div><!-- Input Group -->
+                        </div><!-- Field -->
+                    </div><!-- Column -->
+                    <div class="col-md-12">
+                        <div class="input-text form-group">
+                            <label>SEO Name</label>
+                            <div class="form-group">
+                                <input type="text" class="form-control" name="seo_name" id="seo_name" placeholder="Enter SEO Name" autocomplete="off" />
+                            </div><!-- Input Group -->
+                        </div><!-- Field -->
+                    </div><!-- Column -->
+                    <div class="col-md-12">
+                        <div class="form-group input-text">
+                            <label>Status</label>
+                            <div class="input-group">
+                                <ui-select ng-model="$ctrl.status.id" theme="select2" ng-change="myFunc2($ctrl.status.id)">
+                                    <ui-select-match placeholder="Select Status">
+                                        {{$select.selected.name || $select.selected}}
+                                    </ui-select-match>
+                                    <ui-select-choices repeat="i.id as i in $ctrl.status | propsFilter: {name: $select.search}">
+                                        <div ng-bind-html="i.name | highlight: $select.search"></div>
+                                    </ui-select-choices>
+                                </ui-select>
+                                <input type="hidden" name="status_name" id="status_name" value="">
+                            </div>
+                        </div><!-- Feild -->
+                    </div><!-- Column -->
+                </div><!-- Row -->
+            </div><!-- Modal Body -->
+        </div><!-- Modal Content -->
+    </div><!-- Modal Dialog -->
+</div><!-- Modal -->

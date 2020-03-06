@@ -21,6 +21,14 @@ app.component('categoryList', {
         $scope.loading = true;
         var self = this;
         self.hasPermission = HelperService.hasPermission;
+        $http.get(
+            laravel_routes['filterCategory'],{
+        }).then(function(response) { 
+            // console.log(response.data);
+            self.main_categories = response.data.main_categories;
+            $rootScope.loading = false;
+        });
+
         var dataTable = $('#category_list').DataTable({
             "dom": dom_structure,
             "language": {
@@ -40,7 +48,12 @@ app.component('categoryList', {
             ordering: false,
             ajax: {
                 url: laravel_routes['getCategoryList'],
-                data: function(d) {}
+                data: function(d) {
+                    d.name = $('#name').val();
+                    d.seo_name = $('#seo_name').val();
+                    d.main_category = $('#main_category').val();
+                    d.status_name = $('#status_name').val();
+                }
             },
             columns: [
                 { data: 'action', searchable: false, class: 'action' },
@@ -67,7 +80,7 @@ app.component('categoryList', {
             '<a href="#!/product-pkg/category/add" type="button" class="btn btn-secondary" dusk="add-btn">' +
             'Add Category' +
             '</a>' +
-            '<a role="button" id="open" data-toggle="modal"  data-target="#sms-tempalte-filter" class="btn btn-img"> <img src="' + image_scr + '" alt="Filter" onmouseover=this.src="' + image_scr1 + '" onmouseout=this.src="' + image_scr + '"></a>'
+            '<a role="button" id="open" data-toggle="modal"  data-target="#modal-categories-list-filter" class="btn btn-img"> <img src="' + image_scr + '" alt="Filter" onmouseover=this.src="' + image_scr1 + '" onmouseout=this.src="' + image_scr + '"></a>'
         );
 
         $('.btn-add-close').on("click", function() {
@@ -77,16 +90,6 @@ app.component('categoryList', {
         $('.btn-refresh').on("click", function() {
             $('#category_list').DataTable().ajax.reload();
         });
-
-        /*$scope.clear_search = function() {
-            $('#search_category').val('');
-            $('#categorys_list').DataTable().search('').draw();
-        }
-
-        var dataTables = $('#categorys_list').dataTable();
-        $("#search_category").keyup(function() {
-            dataTables.fnFilter(this.value);
-        });*/
 
         //DELETE
         $scope.deleteCategory = function($id) {
@@ -106,31 +109,42 @@ app.component('categoryList', {
                     $('#category_list').DataTable().ajax.reload();
                     $scope.$apply();
                 } else {
-                    custom_noty('error', response.data.errors);
+                    // custom_noty('error', response.data.errors);
+                    $noty = new Noty({
+                        type: 'error',
+                        layout: 'topRight',
+                        text: response.data.errors,
+                    }).show();
                 }
             });
         }
-
+        self.status = [
+            { id: '', name: 'Select Status' },
+            { id: '1', name: 'Active' },
+            { id: '0', name: 'Inactive' },
+        ];
         //FOR FILTER
-        /*$('#category_code').on('keyup', function() {
-            dataTables.fnFilter();
+        $('#name').on('keyup', function() {
+            dataTable.draw();
         });
-        $('#category_name').on('keyup', function() {
-            dataTables.fnFilter();
+        $('#seo_name').on('keyup', function() {
+            dataTable.draw();
         });
-        $('#mobile_no').on('keyup', function() {
-            dataTables.fnFilter();
-        });
-        $('#email').on('keyup', function() {
-            dataTables.fnFilter();
-        });
+        $scope.myFunc = function(main_category_id) {
+            $('#main_category').val(main_category_id);
+            dataTable.draw();
+        };
+        $scope.myFunc2 = function(selected_status_id) {
+            $('#status_name').val(selected_status_id);
+            dataTable.draw();
+        };
         $scope.reset_filter = function() {
-            $("#category_name").val('');
-            $("#category_code").val('');
-            $("#mobile_no").val('');
-            $("#email").val('');
-            dataTables.fnFilter();
-        }*/
+            $("#name").val('');
+            $("#seo_name").val('');
+            $('#main_category').val(null);
+            $("#status_name").val(null);
+            dataTable.draw();
+        }
 
         $rootScope.loading = false;
     }
@@ -193,7 +207,7 @@ app.component('categoryForm', {
                 self.is_best_selling = 'Yes';
             }
         });
-
+        $('form:first *:input[type!=hidden]:first').focus();
         $scope.SelectFile = function(e) {
             var reader = new FileReader();
             reader.onload = function(e) {
@@ -277,7 +291,12 @@ app.component('categoryForm', {
                 },
             },
             invalidHandler: function(event, validator) {
-                custom_noty('error', 'You have errors,Please check all tabs');
+                // custom_noty('error', 'You have errors,Please check all tabs');
+                $noty = new Noty({
+                    type: 'error',
+                    layout: 'topRight',
+                    text: 'You have errors,Please check all tabs',
+                }).show();
             },
             submitHandler: function(form) {
                 let formData = new FormData($(form_id)[0]);
@@ -301,7 +320,12 @@ app.component('categoryForm', {
                                 for (var i in res.errors) {
                                     errors += '<li>' + res.errors[i] + '</li>';
                                 }
-                                custom_noty('error', errors);
+                                $noty = new Noty({
+                                    type: 'error',
+                                    layout: 'topRight',
+                                    text: errors,
+                                }).show();
+                                // custom_noty('error', errors);
                             } else {
                                 $('#submit').button('reset');
                                 $location.path('/product-pkg/category/list');
@@ -311,7 +335,12 @@ app.component('categoryForm', {
                     })
                     .fail(function(xhr) {
                         $('#submit').button('reset');
-                        custom_noty('error', 'Something went wrong at server');
+                        // custom_noty('error', 'Something went wrong at server');
+                        $noty = new Noty({
+                            type: 'error',
+                            layout: 'topRight',
+                            text: 'Something went wrong at server',
+                        }).show();
                     });
             }
         });

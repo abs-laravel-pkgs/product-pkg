@@ -23,6 +23,11 @@ class CategoryController extends Controller {
 		$this->company_id = config('custom.company_id');
 	}
 
+	public function filterCategory(Request $request) {
+		$this->data['main_categories'] = collect(MainCategory::where('company_id', $this->company_id)->select('id', 'name')->get())->prepend(['id' => '', 'name' => 'Select Main Category']);
+		return response()->json($this->data);
+	}
+
 	public function getCategoryList(Request $request) {
 		$categories = Category::withTrashed()->select(
 			'categories.id',
@@ -34,6 +39,28 @@ class CategoryController extends Controller {
 		)
 			->leftJoin('main_categories', 'main_categories.id', 'categories.main_category_id')
 			->where('categories.company_id', $this->company_id)
+			->where(function ($query) use ($request) {
+				if (!empty($request->name)) {
+					$query->where('categories.name', 'LIKE', '%' . $request->name . '%');
+				}
+			})
+			->where(function ($query) use ($request) {
+				if (!empty($request->seo_name)) {
+					$query->where('categories.seo_name', 'LIKE', '%' . $request->seo_name . '%');
+				}
+			})
+			->where(function ($query) use ($request) {
+				if(!empty($request->main_category)) {
+					$query->where('categories.main_category_id', $request->main_category);
+				}
+			})
+			->where(function ($query) use ($request) {
+				if ($request->status_name == '1') {
+					$query->whereNull('categories.deleted_at');
+				} else if ($request->status_name == '0') {
+					$query->whereNotNull('categories.deleted_at');
+				}
+			})
 			->orderby('categories.id', 'desc')
 		;
 

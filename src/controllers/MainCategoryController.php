@@ -22,12 +22,30 @@ class MainCategoryController extends Controller {
 	}
 
 	public function getMainCategoryList(Request $request) {
+		// dd($request->all());
 		$main_categories = MainCategory::withTrashed()
 			->select(
 				'main_categories.*',
 				DB::raw('IF(main_categories.deleted_at IS NULL, "Active","Inactive") as status')
 			)
 			->where('main_categories.company_id', $this->company_id)
+			->where(function ($query) use ($request) {
+				if (!empty($request->name)) {
+					$query->where('main_categories.name', 'LIKE', '%' . $request->name . '%');
+				}
+			})
+			->where(function ($query) use ($request) {
+				if (!empty($request->seo_name)) {
+					$query->where('main_categories.seo_name', 'LIKE', '%' . $request->seo_name . '%');
+				}
+			})
+			->where(function ($query) use ($request) {
+				if ($request->status_name == '1') {
+					$query->whereNull('main_categories.deleted_at');
+				} else if ($request->status_name == '0') {
+					$query->whereNotNull('main_categories.deleted_at');
+				}
+			})
 			->orderby('id', 'desc');
 
 		return Datatables::of($main_categories)

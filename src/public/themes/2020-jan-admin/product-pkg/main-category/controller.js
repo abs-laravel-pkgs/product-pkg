@@ -40,12 +40,16 @@ app.component('mainCategoryList', {
             ordering: false,
             ajax: {
                 url: laravel_routes['getMainCategoryList'],
-                data: function(d) {}
+                data: function(d) {
+                    d.name = $('#name').val();
+                    d.seo_name = $('#seo_name').val();
+                    d.status_name = $('#status_name').val();
+                }
             },
             columns: [
                 { data: 'action', searchable: false, class: 'action' },
                 { data: 'name', name: 'main_categories.name', searchable: true },
-                { data: 'display_order', name: 'main_categories.display_order', searchable: false },
+                { data: 'display_order', name: 'main_categories.display_order', searchable: false, },
                 { data: 'seo_name', name: 'main_categories.seo_name', searchable: true },
             ],
             "infoCallback": function(settings, start, end, max, total, pre) {
@@ -66,7 +70,7 @@ app.component('mainCategoryList', {
             '<a href="#!/product-pkg/main-category/add" type="button" class="btn btn-secondary" dusk="add-btn">' +
             'Add Main Category' +
             '</a>' +
-            '<a role="button" id="open" data-toggle="modal"  data-target="#sms-tempalte-filter" class="btn btn-img"> <img src="' + image_scr + '" alt="Filter" onmouseover=this.src="' + image_scr1 + '" onmouseout=this.src="' + image_scr + '"></a>'
+            '<a role="button" id="open" data-toggle="modal"  data-target="#modal-main-categories-list-filter" class="btn btn-img"> <img src="' + image_scr + '" alt="Filter" onmouseover=this.src="' + image_scr1 + '" onmouseout=this.src="' + image_scr + '"></a>'
         );
 
         $('.btn-add-close').on("click", function() {
@@ -100,31 +104,39 @@ app.component('mainCategoryList', {
                     $('#main_category_list').DataTable().ajax.reload();
                     $scope.$apply();
                 } else {
-                    custom.noty('error', response.data.errors);
+                    $noty = new Noty({
+                        type: 'error',
+                        layout: 'topRight',
+                        text: response.data.errors,
+                    }).show();
+                    // custom.noty('error', response.data.errors);
                 }
             });
         }
 
         //FOR FILTER
-        /*$('#main-category_code').on('keyup', function() {
-            dataTables.fnFilter();
+        self.status = [
+            { id: '', name: 'Select Status' },
+            { id: '1', name: 'Active' },
+            { id: '0', name: 'Inactive' },
+        ];
+
+        $('#name').on('keyup', function() {
+            dataTable.draw();
         });
-        $('#main-category_name').on('keyup', function() {
-            dataTables.fnFilter();
+        $('#seo_name').on('keyup', function() {
+            dataTable.draw();
         });
-        $('#mobile_no').on('keyup', function() {
-            dataTables.fnFilter();
-        });
-        $('#email').on('keyup', function() {
-            dataTables.fnFilter();
-        });
+        $scope.myFunc2 = function(selected_status_id) {
+            $('#status_name').val(selected_status_id);
+            dataTable.draw();
+        };
         $scope.reset_filter = function() {
-            $("#main-category_name").val('');
-            $("#main-category_code").val('');
-            $("#mobile_no").val('');
-            $("#email").val('');
-            dataTables.fnFilter();
-        }*/
+            $("#name").val('');
+            $("#seo_name").val('');
+            $("#status_name").val(null);
+            dataTable.draw();
+        }
 
         $rootScope.loading = false;
     }
@@ -168,7 +180,7 @@ app.component('mainCategoryForm', {
             }
         });
 
-
+        $('form:first *:input[type!=hidden]:first').focus();
         $scope.SelectFile = function(e) {
             var reader = new FileReader();
             reader.onload = function(e) {
@@ -224,7 +236,12 @@ app.component('mainCategoryForm', {
                 }
             },
             invalidHandler: function(event, validator) {
-                custom_noty('error', 'You have errors,Please check all tabs');
+                // custom_noty('error', 'You have errors,Please check all tabs');
+                $noty = new Noty({
+                    type: 'error',
+                    layout: 'topRight',
+                    text: 'You have errors,Please check all tabs',
+                }).show();
             },
             submitHandler: function(form) {
                 let formData = new FormData($(form_id)[0]);
@@ -248,7 +265,12 @@ app.component('mainCategoryForm', {
                                 for (var i in res.errors) {
                                     errors += '<li>' + res.errors[i] + '</li>';
                                 }
-                                custom_noty('error', errors);
+                                $noty = new Noty({
+                                    type: 'error',
+                                    layout: 'topRight',
+                                    text: errors,
+                                }).show();
+                                // custom_noty('error', errors);
                             } else {
                                 $('#submit').button('reset');
                                 $location.path('/product-pkg/main-category/list');
@@ -258,7 +280,12 @@ app.component('mainCategoryForm', {
                     })
                     .fail(function(xhr) {
                         $('#submit').button('reset');
-                        custom_noty('error', 'Something went wrong at server');
+                        $noty = new Noty({
+                            type: 'error',
+                            layout: 'topRight',
+                            text: 'Something went wrong at server',
+                        }).show();
+                        // custom_noty('error', 'Something went wrong at server');
                     });
             }
         });

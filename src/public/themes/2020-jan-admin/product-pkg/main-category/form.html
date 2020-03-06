@@ -7,7 +7,7 @@
                     <div class="page-header-content">
                         <div class="page-header-inner page-title display-inline-block">
                             <div class="previous-page">
-                                <a href="#!/product-pkg/main-category/list">
+                                <a href="#!/product-pkg/main-category/list" ng-shortcut="'meta+shift+left'" ng-shortcut-click data-title="ctrl+shift+left" class="my-tooltip">
                                     <img src="./public/themes/{{$ctrl.theme}}/img/content/previous.svg" class="img-responsive">
                                 </a>
                             </div>
@@ -103,7 +103,7 @@
                                                     </div><!-- Column -->
                                                 </div>
                                                 <div class="row">
-                                                    <div class="col-md-3" ng-if="$ctrl.action == 'Edit'">
+                                                    <div class="col-md-3" ng-if="$ctrl.action == 'Edit' && PreviewImage != null">
                                                         <div class="form-group">
                                                             <label>Preview</label>
                                                             <img ng-src="{{PreviewImage}}" ng-show="PreviewImage != null" alt="" style="width:100px" />
@@ -122,7 +122,7 @@
                                                 <div class="row">
                                                     <div class="col-md-12">
                                                         <div class="tab-pane-footer text-right">
-                                                            <button type="submit" id="submit" class="btn btn-secondary">
+                                                            <button type="submit" id="submit" class="btn btn-secondary my-tooltip" ng-shortcut="'meta+shift+s'" ng-shortcut-click data-title="ctrl+shift+s">
                                                                 Submit
                                                             </button>
                                                         </div><!-- Tab Footer -->

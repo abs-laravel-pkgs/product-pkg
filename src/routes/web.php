@@ -12,6 +12,7 @@ Route::group(['namespace' => 'Abs\ProductPkg', 'middleware' => ['web', 'auth'], 
 	Route::get('/category/get-form-data', 'CategoryController@getCategoryFormData')->name('getCategoryFormData');
 	Route::post('/category/save', 'CategoryController@saveCategory')->name('saveCategory');
 	Route::get('/category/delete', 'CategoryController@deleteCategory')->name('deleteCategory');
+	Route::get('/category/filter', 'CategoryController@filterCategory')->name('filterCategory');
 
 	//Strengths
 	Route::get('/strengths/get-list', 'StrengthController@getStrengthList')->name('getStrengthList');
