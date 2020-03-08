@@ -2,7 +2,7 @@
 
 namespace Abs\ProductPkg;
 
-use Abs\Basic\Traits\BasicTrait;
+use Abs\BasicPkg\Traits\BasicTrait;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -31,7 +31,7 @@ class Category extends Model {
 	}
 
 	public function image() {
-		return $this->belongsTo('Abs\Basic\Attachment', 'image_id');
+		return $this->belongsTo('Abs\BasicPkg\Attachment', 'image_id');
 	}
 
 	public function items() {
@@ -47,19 +47,19 @@ class Category extends Model {
 	}
 
 	public function activeSubstance() {
-		return $this->belongsTo('Abs\Basic\Entity', 'active_substance_id')->where('entity_type_id', 1);
+		return $this->belongsTo('Abs\BasicPkg\Entity', 'active_substance_id')->where('entity_type_id', 1);
 	}
 
 	public function drugCategory() {
-		return $this->belongsTo('Abs\Basic\Entity', 'drug_category_id')->where('entity_type_id', 2);
+		return $this->belongsTo('Abs\BasicPkg\Entity', 'drug_category_id')->where('entity_type_id', 2);
 	}
 
 	public function manufacturer() {
-		return $this->belongsTo('Abs\Basic\Entity', 'manufacturer_id')->where('entity_type_id', 3);
+		return $this->belongsTo('Abs\BasicPkg\Entity', 'manufacturer_id')->where('entity_type_id', 3);
 	}
 
 	public function packageType() {
-		return $this->belongsTo('Abs\Basic\Entity', 'package_type_id')->where('entity_type_id', 4);
+		return $this->belongsTo('Abs\BasicPkg\Entity', 'package_type_id')->where('entity_type_id', 4);
 	}
 
 	public function scopeBestSelling($query) {

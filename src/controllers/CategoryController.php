@@ -1,8 +1,8 @@
 <?php
 
 namespace Abs\ProductPkg;
-use Abs\Basic\Attachment;
-use Abs\Basic\Entity;
+use Abs\BasicPkg\Attachment;
+use Abs\BasicPkg\Entity;
 use Abs\ProductPkg\Category;
 use Abs\ProductPkg\MainCategory;
 use App\Http\Controllers\Controller;
@@ -50,7 +50,7 @@ class CategoryController extends Controller {
 				}
 			})
 			->where(function ($query) use ($request) {
-				if(!empty($request->main_category)) {
+				if (!empty($request->main_category)) {
 					$query->where('categories.main_category_id', $request->main_category);
 				}
 			})

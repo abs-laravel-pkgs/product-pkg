@@ -2,7 +2,7 @@
 
 namespace Abs\ProductPkg;
 
-use Abs\Basic\Traits\BasicTrait;
+use Abs\BasicPkg\Traits\BasicTrait;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -17,7 +17,7 @@ class Strength extends Model {
 	];
 
 	public function type() {
-		return $this->belongsTo('Abs\Basic\Entity', 'type_id')->where('entity_type_id', 5);
+		return $this->belongsTo('Abs\BasicPkg\Entity', 'type_id')->where('entity_type_id', 5);
 	}
 
 	public function items($category_id) {

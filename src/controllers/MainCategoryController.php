@@ -1,7 +1,7 @@
 <?php
 
 namespace Abs\ProductPkg;
-use Abs\Basic\Attachment;
+use Abs\BasicPkg\Attachment;
 use Abs\ProductPkg\MainCategory;
 use App\Http\Controllers\Controller;
 use Auth;

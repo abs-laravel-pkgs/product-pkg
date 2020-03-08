@@ -1,7 +1,7 @@
 <?php
 
 namespace Abs\ProductPkg;
-use Abs\Basic\Entity;
+use Abs\BasicPkg\Entity;
 use Abs\ProductPkg\Strength;
 use App\Http\Controllers\Controller;
 use Auth;
