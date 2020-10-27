@@ -1,0 +1,142 @@
+<!-- Content Wrap -->
+<div class="content-wrap">
+    <div class="page-header">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="page-header-content">
+                        <div class="page-header-inner page-title display-inline-block">
+                            <div class="previous-page">
+                                <a href="#!/product-pkg/main-category/list" ng-shortcut="'meta+shift+left'" ng-shortcut-click data-title="ctrl+shift+left" class="my-tooltip">
+                                    <img src="./public/themes/{{$ctrl.theme}}/img/content/previous.svg" class="img-responsive">
+                                </a>
+                            </div>
+                        </div><!-- Page Header Inner -->
+                        <div class="page-header-inner page-title display-inline-block">
+                            <h1 class="title">{{$ctrl.action}} Main Category</h1>
+                            <p class="subtitle">
+                                <a href="#!/product-pkg/main-category/list">
+                                    Main Categories
+                                </a> /
+                                {{$ctrl.action}}
+                            </p>
+                        </div><!-- Page Header Inner -->
+                    </div><!-- Page Header Content -->
+                </div><!-- Col Main -->
+            </div><!-- Row -->
+        </div><!-- Container -->
+    </div><!-- Page Header -->
+    <!-- Page Main Content -->
+    <div class="page-main-content">
+        <form id="form" autocomplete="off" enctype="multipart/form-data">
+            <input type="hidden" name="id" value="{{$ctrl.main_category.id}}">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="page-tab-form pb-80">
+                            <div class="tab-form-wrap">
+                                <div class="tab-form-header">
+                                    <div class="tab-header">
+                                        <div class="isotope-filters animated" data-animation="fadeInLeft" data-animation-delay="300">
+                                            <ul class="nav nav-pills editDetails-tabs">
+                                                <li class="active">
+                                                    <a data-target="#general-info" role="tab" data-toggle="tab" aria-expanded="true"> General Information
+                                                    </a>
+                                                </li>
+                                            </ul>
+                                        </div><!-- Filters -->
+                                    </div><!-- Tab Header -->
+                                </div><!-- Tab Form Header -->
+                                <div class="tab-form-body">
+                                    <div class="tab-content">
+                                        <!-- TAB PANEL -->
+                                        <div class="tab-pane fade in active" id="general-info" data-animation="fadeInUp" data-animation-delay="300">
+                                            <div class="tab-pane-wrap">
+                                                <div class="row">
+                                                    <div class="col-md-3">
+                                                        <div class="form-group">
+                                                            <label>
+                                                                Name
+                                                                <span class="mandatory">
+                                                                    *
+                                                                </span>
+                                                            </label>
+                                                            <input type="text" name="name" ng-model="$ctrl.main_category.name" class="form-control required" placeholder="Enter Name" autocomplete="off" minlength="3" maxlength="191">
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-3">
+                                                        <div class="form-group">
+                                                            <label>
+                                                                Display Order
+                                                                <span class="mandatory">
+                                                                    *
+                                                                </span>
+                                                            </label>
+                                                            <input type="text" name="display_order" ng-model="$ctrl.main_category.display_order" class="form-control required" placeholder="Enter Display Order" autocomplete="off" oninput="this.value = this.value.replace(/[^0-9]/g, '').replace(/(\..*)\./g, '$1');" minlength="3" maxlength="8">
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-3">
+                                                        <div class="form-group">
+                                                            <label>
+                                                                SEO Name
+                                                                <span class="mandatory">
+                                                                    *
+                                                                </span>
+                                                            </label>
+                                                            <input type="text" name="seo_name" ng-model="$ctrl.main_category.    seo_name" class="form-control required" placeholder="Enter SEO Name" autocomplete="off" minlength="3" maxlength="191">
+                                                        </div><!-- Field -->
+                                                    </div><!-- Column -->
+                                                    <div class="col-md-3">
+                                                        <div class="form-group">
+                                                            <label>Icon</label>
+                                                            <div class="input-group btn-file">
+                                                                <input type="text" class="form-control" id="edited_file_name" readonly placeholder="Browse Icon">
+                                                                <span class="input-group-btn">
+                                                                    <span class="btn btn-primary">
+                                                                        <input type="file" name="icon_id" class="form-control" placeholder="Enter Icon" accept="image/*" onchange="angular.element(this).scope().SelectFile(event)">
+                                                                        <img src="public/themes/{{$ctrl.theme}}/img/content/file-bg.svg">
+                                                                    </span>
+                                                                </span>
+                                                            </div>
+                                                        </div><!-- Field -->
+                                                        <span id="attachment_error"></span>
+                                                    </div><!-- Column -->
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col-md-3" ng-if="$ctrl.action == 'Edit' && PreviewImage != null">
+                                                        <div class="form-group">
+                                                            <label>Preview</label>
+                                                            <img ng-src="{{PreviewImage}}" ng-show="PreviewImage != null" alt="" style="width:100px" />
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-3">
+                                                        <div class="form-group">
+                                                            <label>Active Status<span class="mandatory">*</span></label>
+                                                            <md-switch ng-model="$ctrl.switch_value" aria-label="Switch 2" ng-true-value="'Inactive'" ng-false-value="'Active'" class="md-warn">
+                                                                {{ $ctrl.switch_value }}
+                                                            </md-switch>
+                                                            <input type="hidden" name="status" value="{{$ctrl.switch_value}}">
+                                                        </div><!-- Field -->
+                                                    </div><!-- Column -->
+                                                </div><!-- Row -->
+                                                <div class="row">
+                                                    <div class="col-md-12">
+                                                        <div class="tab-pane-footer text-right">
+                                                            <button type="submit" id="submit" class="btn btn-secondary my-tooltip" ng-shortcut="'meta+shift+s'" ng-shortcut-click data-title="ctrl+shift+s">
+                                                                Submit
+                                                            </button>
+                                                        </div><!-- Tab Footer -->
+                                                    </div>
+                                                </div><!-- Row -->
+                                            </div><!-- Tab Pane Wrap -->
+                                        </div><!-- Tab Pane -->
+                                    </div><!-- Tab Content -->
+                                </div><!-- Tab Form Body -->
+                            </div><!-- Tab Form Wrap -->
+                        </div><!-- Page Tab Form -->
+                    </div><!-- Column -->
+                </div><!-- Row -->
+            </div><!-- Container -->
+        </form>
+    </div><!-- Page Main Content -->
+</div><!-- Content Wrap -->
