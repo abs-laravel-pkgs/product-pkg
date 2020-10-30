@@ -22,9 +22,10 @@ app.component('categoryList', {
         $scope.loading = true;
         var self = this;
         self.hasPermission = HelperService.hasPermission;
+        alert(laravel_routes['filterCategory'])
         $http.get(
             laravel_routes['filterCategory'],{
-        }).then(function(response) { 
+        }).then(function(response) {
             // console.log(response.data);
             self.main_categories = response.data.main_categories;
             $rootScope.loading = false;
