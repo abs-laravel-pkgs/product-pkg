@@ -10,69 +10,21 @@ use App\Index;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class Item extends Model {
+class Wishlist extends Model {
 	use SeederTrait;
-	use SoftDeletes;
-	protected $table = 'items';
+	protected $table = 'wishlists';
 	public $timestamps = true;
 	protected $fillable = [
-		'category_id',
-		'strength_id',
-		'package_size',
-		'display_order',
-		'regular_price',
-		'special_price',
-		'name',
-		'seo_name',
-		'short_description',
-		'full_description',
-		'rating',
 	];
 
 	//--------------------- Relations -------------------------------------------------------
 
-	public function mainCategory() {
-		return $this->belongsTo('Abs\ProductPkg\MainCategory');
+	public function wishable() {
+		return $this->morphTo();
 	}
 
-	public function category() {
-		return $this->belongsTo('App\Category');
-	}
-
-	public function strengths() {
-		return $this->belongsTo('App\Strength', 'strength_id');
-	}
-
-	public function strength() {
-		return $this->belongsTo('App\Strength');
-	}
-
-	public function shippingMethod() {
-		return $this->belongsTo('App\ShippingMethod');
-	}
-
-	public function shippingMethods() {
-		return $this->belongsTo('App\ShippingMethod', 'shipping_method_id');
-	}
-
-	public function tags() {
-		return $this->belongsToMany('App\Tag', 'item_tags', 'item_id');
-	}
-
-	public function reviews(){
-		return $this->morphMany('App\Review', 'reviewable');
-	}
-
-	public function relatedItems(){
-		return $this->belongsToMany('App\Item', 'item_related_item','related_item_id');
-	}
 	//--------------------- Query Scopes -------------------------------------------------------
 
-	public function scopeFilterByTagName($query, $tagName){
-		return $query->whereHas('tags',function($query) use ($tagName){
-			$query->where('name',$tagName);
-		});
-	}
 
 	//--------------------- Static Operations -------------------------------------------------------
 
