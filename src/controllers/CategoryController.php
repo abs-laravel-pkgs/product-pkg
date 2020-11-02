@@ -17,7 +17,7 @@ use Yajra\Datatables\Datatables;
 
 class CategoryController extends Controller {
 
-	private $company_id;
+	public $company_id;
 	public function __construct() {
 		$this->data['theme'] = config('custom.admin_theme');
 		// $this->company_id = Auth::user()->company_id;
@@ -99,7 +99,7 @@ class CategoryController extends Controller {
 				->where('categories.id', $id)
 				->first();
 			$attachment = Attachment::where('id', $category->image_id)->first();
-			$category->tag_ids = $category->tags()->pluck('tag_id')->toArray(); 	
+			$category->tag_ids = $category->tags()->pluck('tag_id')->toArray();
 			$action = 'Edit';
 		}
 		$this->data['category'] = $category;
@@ -217,12 +217,12 @@ class CategoryController extends Controller {
 				$category->save();
 			}
 
-			//category tags	
+			//category tags
 			$str = ltrim($request->tag_ids,"[");
 			$str1 = rtrim($str,"]");
 			$tag_ids = explode(',', $str1);
 			$category->tags()->sync($tag_ids);
-			
+
 			DB::commit();
 			if (!($request->id)) {
 				return response()->json([

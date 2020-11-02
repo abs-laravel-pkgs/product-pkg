@@ -16,7 +16,7 @@ use Yajra\Datatables\Datatables;
 
 class ItemController extends Controller {
 
-	private $company_id;
+	public $company_id;
 	public function __construct() {
 		$this->data['theme'] = config('custom.admin_theme');
 		// $this->company_id = Auth::user()->company_id;
