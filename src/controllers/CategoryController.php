@@ -5,6 +5,7 @@ use Abs\BasicPkg\Attachment;
 use Abs\BasicPkg\Entity;
 use Abs\ProductPkg\Category;
 use Abs\ProductPkg\MainCategory;
+use App\Tag;
 use App\Http\Controllers\Controller;
 use Auth;
 use Carbon\Carbon;
@@ -98,6 +99,7 @@ class CategoryController extends Controller {
 				->where('categories.id', $id)
 				->first();
 			$attachment = Attachment::where('id', $category->image_id)->first();
+			$category->tag_ids = $category->tags()->pluck('tag_id')->toArray(); 	
 			$action = 'Edit';
 		}
 		$this->data['category'] = $category;
@@ -107,6 +109,7 @@ class CategoryController extends Controller {
 			'active_substance_list' => collect(Entity::where('entity_type_id', 1)->select('id', 'name')->get())->prepend(['name' => 'Select Active Substance', 'id' => '']),
 			'manufacture_list' => collect(Entity::where('entity_type_id', 3)->select('id', 'name')->get())->prepend(['name' => 'Select Manufacture', 'id' => '']),
 			'package_type_list' => collect(Entity::where('entity_type_id', 4)->select('id', 'name')->get())->prepend(['name' => 'Select Package Type', 'id' => '']),
+			'tag_list' => collect(Tag::where('taggable_type_id', 20)->select('id', 'name')->get())->prepend(['name' => 'Select Tags', 'id' => '']),
 		];
 		$this->data['action'] = $action;
 		$this->data['theme'];
@@ -121,7 +124,7 @@ class CategoryController extends Controller {
 				'name.required' => 'Name is Required',
 				'name.unique' => 'Name is already taken',
 				'display_order.required' => 'Display Order is Required',
-				'package_type_id.required' => 'Package Type is Required',
+				// 'package_type_id.required' => 'Package Type is Required',
 				'customer_rating.required' => 'Customer Rating is Required',
 				'seo_name.required' => 'SEO Name is Required',
 				'seo_name.unique' => 'SEO Name is already taken',
@@ -132,7 +135,7 @@ class CategoryController extends Controller {
 					'unique:categories,name,' . $request->id . ',id,company_id,' . Auth::user()->company_id,
 				],
 				'display_order' => 'required',
-				'package_type_id' => 'required',
+				// 'package_type_id' => 'required',
 				'customer_rating' => 'required',
 				'seo_name' => [
 					'required',
@@ -214,6 +217,12 @@ class CategoryController extends Controller {
 				$category->save();
 			}
 
+			//category tags	
+			$str = ltrim($request->tag_ids,"[");
+			$str1 = rtrim($str,"]");
+			$tag_ids = explode(',', $str1);
+			$category->tags()->sync($tag_ids);
+			
 			DB::commit();
 			if (!($request->id)) {
 				return response()->json([

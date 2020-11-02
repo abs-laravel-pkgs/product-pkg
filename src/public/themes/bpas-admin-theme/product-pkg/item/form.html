@@ -69,7 +69,7 @@
                                                                     <md-option ng-value="main_category.id" ng-repeat="main_category in $ctrl.extras.main_category_list | filter:searchTerm">{{main_category.name}}</md-option>
                                                                 </md-optgroup>
                                                             </md-select>
-                                                            <input type="hidden" class="required" name="main_category_id" id="main_category_id" value="{{$ctrl.item.category.main_category_id}}">
+                                                            <input type="hidden" class="" name="main_category_id" id="main_category_id" value="{{$ctrl.item.category.main_category_id}}">
                                                         </div>
                                                     </div>
                                                     <div class="col-md-3">
@@ -118,7 +118,7 @@
                                                                     *
                                                                 </span>
                                                             </label>
-                                                            <input type="text" name="package_size" ng-model='$ctrl.item.package_size' class="form-control required" placeholder="Enter Package Size" autocomplete="off" oninput="this.value = this.value.replace(/[^\d.]/g, '').replace(/(^[\d]{3})[\d]/g, '$1').replace(/(\..*)\./g, '$1').replace(/(\.[\d]{2})./g, '$1');">
+                                                            <input type="text" name="package_size" ng-model='$ctrl.item.package_size' class="form-control" placeholder="Enter Package Size" autocomplete="off" oninput="this.value = this.value.replace(/[^\d.]/g, '').replace(/(^[\d]{3})[\d]/g, '$1').replace(/(\..*)\./g, '$1').replace(/(\.[\d]{2})./g, '$1');">
                                                         </div>
                                                     </div>
                                                 </div><!-- Row -->
@@ -158,6 +158,22 @@
                                                     </div>
                                                     <div class="col-md-3">
                                                         <div class="form-group">
+                                                            <label>Tags</label>
+                                                            <md-select ng-model="$ctrl.item.tag_ids" data-md-container-class="selectdemoSelectHeader" placeholder="Select Tags" multiple>
+                                                                <md-select-header class="demo-select-header">
+                                                                    <input ng-model="searchTerm3" type="search" placeholder="Search for a Tag" class="demo-header-searchbox md-text">
+                                                                </md-select-header>
+                                                                <md-optgroup>
+                                                                    <md-option ng-value="i.id" ng-repeat="i in $ctrl.extras.tag_list | filter:searchTerm3">{{i.name}}</md-option>
+                                                                </md-optgroup>
+                                                            </md-select>
+                                                            <input type="hidden" class="form-control" name="tag_ids" value="{{$ctrl.item.tag_ids}}">
+                                                        </div>
+                                                    </div>
+                                                </div><!-- Row -->
+                                                <div class="row">
+                                                    <div class="col-md-3">
+                                                        <div class="form-group">
                                                             <label>
                                                                 Has Free Qty?
                                                                 <span class="mandatory">
@@ -172,8 +188,6 @@
                                                             </div>
                                                         </div><!-- Field -->
                                                     </div><!-- Column -->
-                                                </div><!-- Row -->
-                                                <div class="row">
                                                     <div class="col-md-3" ng-if="$ctrl.has_free == 'Yes'">
                                                         <div class="form-group">
                                                             <label>
@@ -234,6 +248,33 @@
                                                             <input type="hidden" name="status" value="{{$ctrl.switch_value}}">
                                                         </div><!-- Field -->
                                                     </div><!-- Column -->
+                                                </div><!-- Row -->
+                                                <div class="row">
+                                                    <div class="col-md-3">
+                                                        <input type="file" name="primary_attachment" value="">
+                                                    </div>
+                                                    <div class="col-md-9">
+                                                        <h5 class="color-primary"><b>Attachments</b></h5>
+                                                        <hr class="hr-15"><!-- Separater -->
+                                                        <div class="row">
+                                                            <div class="col-md-4">
+                                                                <div class="form-group">
+                                                                    <input type="file" id="" name="attachments[]" multiple>
+                                                                </div><!-- Feild -->
+                                                            </div><!-- Column -->
+                                                        </div><!-- Row -->
+                                                    <button type="button" ng-click="addAttachmentRow()" class="btn btn-md type2 btn-green btn-square">
+                                                        Add Photo
+                                                    </button>
+                                                </div><!-- Column -->
+                                                <div class="tab-pane-footer">
+                                                    <div class="row">
+                                                        <div class="col-md-12">
+                                                            <a class="btn btn-secondary-dark btn-prev">Previous</a>
+                                                            <a class="btn btn-red">Submit</a>
+                                                        </div>
+                                                    </div>
+                                                </div><!-- Tab Footer -->
                                                 </div><!-- Row -->
                                                 <div class="row">
                                                     <div class="col-md-12">

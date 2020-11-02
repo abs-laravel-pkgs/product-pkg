@@ -173,6 +173,22 @@
                                                         </div>
                                                     </div>
                                                 </div><!-- Row -->
+                                                <div class="row"> 
+                                                    <div class="col-md-3">
+                                                        <div class="form-group">
+                                                            <label>Category Tags</label>
+                                                            <md-select ng-model="$ctrl.category.tag_ids" data-md-container-class="selectdemoSelectHeader" placeholder="Select Tags" multiple>
+                                                                <md-select-header class="demo-select-header">
+                                                                    <input ng-model="searchTerm3" type="search" placeholder="Search for a Tag" class="demo-header-searchbox md-text">
+                                                                </md-select-header>
+                                                                <md-optgroup>
+                                                                    <md-option ng-value="i.id" ng-repeat="i in $ctrl.extras.tag_list | filter:searchTerm3">{{i.name}}</md-option>
+                                                                </md-optgroup>
+                                                            </md-select>
+                                                            <input type="hidden" class="form-control" name="tag_ids" value="{{$ctrl.category.tag_ids}}">
+                                                        </div>
+                                                    </div>
+                                                </div><!-- Row -->
                                                 <div class="row">
                                                     <div class="col-md-3">
                                                         <div class="form-group">
@@ -247,6 +263,7 @@
                                                         </div><!-- Tab Footer -->
                                                     </div>
                                                 </div><!-- Row -->
+                                                
                                             </div><!-- Tab Pane Wrap -->
                                         </div><!-- Tab Pane -->
                                         <div class="tab-pane fade" id="seo-details" data-animation="fadeInUp" data-animation-delay="300">

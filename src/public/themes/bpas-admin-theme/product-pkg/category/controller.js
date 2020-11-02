@@ -244,17 +244,17 @@ app.component('categoryForm', {
                     minlength: 3,
                     maxlength: 191,
                 },
-                'main_category_id': {
-                    required: true,
-                },
+                // 'main_category_id': {
+                //     required: true,
+                // },
                 'display_order': {
                     required: true,
                     number: true,
                     maxlength: 8,
                 },
-                'package_type_id': {
-                    required: true,
-                },
+                // 'package_type_id': {
+                //     required: true,
+                // },
                 'display_order': {
                     required: true,
                 },
