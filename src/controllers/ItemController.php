@@ -8,6 +8,8 @@ use Abs\ProductPkg\Strength;
 use Abs\ShippingMethodPkg\ShippingMethod;
 use App\Http\Controllers\Controller;
 use Auth;
+use App\Tag;
+use App\Attachment;
 use Carbon\Carbon;
 use DB;
 use Illuminate\Http\Request;
@@ -112,13 +114,19 @@ class ItemController extends Controller {
 				->where('items.id', $id)
 				->first();
 			$this->data['category_list'] = collect(Category::where('main_category_id', $item->category->main_category_id)->select('id', 'name')->get())->prepend(['name' => 'Select Category', 'id' => '']);
+			$item->tag_ids = $item->tags()->pluck('tag_id')->toArray();
 			$action = 'Edit';
+
+
+			$this->data['primary_attachment'] = Attachment::select('id','name','entity_id')->where('attachment_of_id', 202)->where('attachment_type_id', 202)->first();
+			$this->data['additional_attachments'] = Attachment::select('id','name','entity_id')->where('attachment_of_id', 203)->where('attachment_type_id', 203)->get();
 		}
 		$this->data['item'] = $item;
 		$this->data['extras'] = [
 			'main_category_list' => collect(MainCategory::where('company_id', $this->company_id)->select('id', 'name')->get())->prepend(['name' => 'Select Main Category', 'id' => '']),
 			'shipping_method_list' => collect(ShippingMethod::where('company_id', $this->company_id)->select('id', 'name')->get())->prepend(['name' => 'Select Shipping Method', 'id' => '']),
 			'strength_list' => collect(Strength::where('company_id', $this->company_id)->select('id', 'name')->get())->prepend(['name' => 'Select Strength', 'id' => '']),
+			'tag_list' => collect(Tag::where('taggable_type_id', 200)->select('id', 'name')->get())->prepend(['name' => 'Select Tags', 'id' => '']),
 		];
 		$this->data['action'] = $action;
 		$this->data['theme'];
@@ -141,19 +149,19 @@ class ItemController extends Controller {
 		// dd($request->all());
 		try {
 			$error_messages = [
-				'category_id.required' => 'Category is Required',
-				'strength_id.required' => 'Strength is Required',
-				'package_size.required' => 'Package Size is Required',
-				'package_size.unique' => 'Package Size is already taken',
+				// 'category_id.required' => 'Category is Required',
+				// 'strength_id.required' => 'Strength is Required',
+				// 'package_size.required' => 'Package Size is Required',
+				// 'package_size.unique' => 'Package Size is already taken',
 				'display_order.required' => 'Display Order is Required',
 				'regular_price.required' => 'Regular price is Required',
 				'special_price.required' => 'Special price is Required',
 			];
 			$validator = Validator::make($request->all(), [
-				'category_id' => 'required',
-				'strength_id' => 'required',
+				// 'category_id' => 'required',
+				// 'strength_id' => 'required',
 				'package_size' => [
-					'required:true',
+					// 'required:true',
 					'unique:items,package_size,' . $request->id . ',id,category_id,' . $request->category_id . ',strength_id,' . $request->strength_id,
 				],
 				'display_order' => 'required',
@@ -175,6 +183,8 @@ class ItemController extends Controller {
 				$item->updated_by_id = Auth::user()->id;
 				$item->updated_at = Carbon::now();
 			}
+			$item->company_id = Auth::user()->company_id;
+			$item->category_id = 97;
 			$item->fill($request->all());
 			// $item->company_id = Auth::user()->company_id;
 			if ($request->has_free == 'Yes') {
@@ -200,6 +210,53 @@ class ItemController extends Controller {
 				$item->deleted_at = NULL;
 			}
 			$item->save();
+
+			//category tags	
+			$str = ltrim($request->tag_ids,"[");
+			$str1 = rtrim($str,"]");
+			$tag_ids = explode(',', $str1);
+			$item->tags()->sync($tag_ids);
+
+			//primary attachment
+			if($request->primary_attachment) {
+				$destination = itemImagePath($item->id, 'primary');
+				$file = $request->primary_attachment;
+				$extension = '.' . $file->getClientOriginalExtension();
+				$attachment_name = $item->seo_name . '_' . date('Y-m-d') . '_' . date('h_i_s') . $extension; 
+				$check_name = Attachment::where('name', $attachment_name)->first();
+				if($check_name){
+					return response()->json(['success' => false, 'errors' => 'Please upload files again']);
+				}
+				$path = $file->storeAs($destination, $attachment_name);
+				$attachment = new attachment;
+				$attachment->attachment_of_id = 202;
+				$attachment->attachment_type_id = 202;
+				$attachment->entity_id = $item->id;
+				$attachment->name = $attachment_name;
+				$attachment->save();
+			}
+			//additional attachments
+			if($request->additional_attachments) {
+				foreach ($request->additional_attachments as $key => $attachment) {
+					set_time_limit(20);
+					$destination = itemImagePath($item->id, 'additional');
+					$file = $attachment;
+					$extension = '.' . $file->getClientOriginalExtension();
+					$attachment_name = $item->seo_name . '_' . $key . '_' . date('Y_m_d') . '_' . date('h_i_s') . $extension; 
+					$check_name = Attachment::where('name', $attachment_name)->first();
+					if($check_name){
+						return response()->json(['success' => false, 'errors' => ['Please upload files again']]);
+					}
+					$names[] = $attachment_name;
+					$path = $file->storeAs($destination, $attachment_name);
+					$attachment = new attachment;
+					$attachment->attachment_of_id = 203;
+					$attachment->attachment_type_id = 203;
+					$attachment->entity_id = $item->id;
+					$attachment->name = $attachment_name;
+					$attachment->save();
+				}
+			}
 
 			DB::commit();
 			if (!($request->id)) {

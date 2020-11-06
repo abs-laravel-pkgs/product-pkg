@@ -145,7 +145,7 @@ app.component('itemList', {
 //------------------------------------------------------------------------------------------------------------------------
 app.component('itemForm', {
     templateUrl: item_form_template_url,
-    controller: function($http, $location, HelperService, $scope, $routeParams, $rootScope) {
+    controller: function($http, $location, HelperService, $scope, $routeParams, $rootScope, $timeout) {
         var self = this;
         self.hasPermission = HelperService.hasPermission;
         self.angular_routes = angular_routes;
@@ -161,6 +161,13 @@ app.component('itemForm', {
             self.category_list = response.data.category_list;
             self.action = response.data.action;
             self.theme = response.data.theme;
+            self.primary_attachment = response.data.primary_attachment;
+            self.additional_attachments = response.data.additional_attachments;
+            console.log(self.additional_attachments);
+            console.log(response.data);
+            self.attachments = [];
+            self.attachments_count = [{ 'row': [] }];
+            self.counts = [1,2,3,4,5];
             $rootScope.loading = false;
             if (self.action == 'Edit') {
                 if (self.item.deleted_at) {
@@ -198,23 +205,42 @@ app.component('itemForm', {
             });
         }
 
+        $scope.addAttachmentRow = function(event){
+            self.attachments_count.push({ 'row': [] });
+        }
+
+        $scope.onFileChange = function(event, key){
+            var file = event[0];
+            reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = (e) => {
+                self.primary_attachment_image = e.target.result;
+                $('#attachment_image_' + key).html('<img src=' + e.target.result + ' width="350" height="200">')
+            }                     
+        }
+
+        $scope.deleteAttachmentRow = function(key){
+            alert(key);
+            self.attachments_count.splice(key,1);
+        }
+
         var form_id = '#form';
         var v = jQuery(form_id).validate({
             ignore: '',
             rules: {
-                'main_category_id': {
-                    required: true,
-                },
-                'category_id': {
-                    required: true,
-                },
-                'strength_id': {
-                    required: true,
-                },
-                'package_size': {
-                    required: true,
-                    number: true,
-                },
+                // 'main_category_id': {
+                //     required: true,
+                // },
+                // 'category_id': {
+                //     required: true,
+                // },
+                // 'strength_id': {
+                //     required: true,
+                // },
+                // 'package_size': {
+                //     required: true,
+                //     number: true,
+                // },
                 'display_order': {
                     required: true,
                     number: true,

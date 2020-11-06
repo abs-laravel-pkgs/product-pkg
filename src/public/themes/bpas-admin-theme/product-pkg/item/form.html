@@ -175,6 +175,17 @@
                                                     <div class="col-md-3">
                                                         <div class="form-group">
                                                             <label>
+                                                                Seo Name
+                                                                <span class="mandatory">
+                                                                    *
+                                                                </span>
+                                                            </label>
+                                                            <input type="text" name="seo_name" ng-model='$ctrl.item.seo_name' class="form-control required" placeholder="Enter Seo Name">
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-3">
+                                                        <div class="form-group">
+                                                            <label>
                                                                 Has Free Qty?
                                                                 <span class="mandatory">
                                                                     *
@@ -250,31 +261,63 @@
                                                     </div><!-- Column -->
                                                 </div><!-- Row -->
                                                 <div class="row">
-                                                    <div class="col-md-3">
-                                                        <input type="file" name="primary_attachment" value="">
+                                                    <div class="col-md-4">
+                                                        <div class="form-group">
+                                                            <label>Short Description</label>
+                                                            <textarea name="short_description" ng-model="$ctrl.category.short_description" class="form-control" placeholder="Enter Short Description" rows="3" autocomplete="off" minlength="3" maxlength="255"></textarea>
+                                                        </div>
                                                     </div>
-                                                    <div class="col-md-9">
+                                                    <div class="col-md-8">
+                                                        <div class="form-group">
+                                                            <label>Full Description</label>
+                                                            <textarea name="full_description" ng-model="$ctrl.category.full_description" class="form-control" placeholder="Enter Full Description" rows="3" autocomplete="off" minlength="3" maxlength="255"></textarea>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col-md-6">
+                                                        <input type="file" id="primary_attachment" name="primary_attachment" ng-model='$ctrl.primary_attachment' onchange="angular.element(this).scope().onFileChange(this.files, 'primary')">
+                                                        <div id="attachment_image_primary"></div>
+                                                        <a ng-if="$ctrl.primary_attachment != ''" href="storage/app/public/uploads/item/{{$ctrl.primary_attachment.entity_id}}/primary/{{$ctrl.primary_attachment.name}}" target="blank">view {{$ctrl.primary_attachment.name}}</a>
+                                                    </div>
+
+                                                    <div class="col-md-6">
+                                                        <div ng-if="$ctrl.additional_attachments" ng-repeat="(key,additional_attachment) in $ctrl.additional_attachments">
+                                                                <a href="storage/app/public/uploads/item/{{additional_attachment.entity_id}}/additional/{{additional_attachment.name}}" target="blank">view {{additional_attachment.name}}</a>
+                                                        </div>
+                                                        
+                                                        <div class="custom-row" ng-repeat="(key,attachment) in $ctrl.attachments_count">
+                                                            <input type="file" class="attachments" id="attachment_{{key}}" name="additional_attachments[]" ng-model='$ctrl.additional_attachments'  onchange="angular.element(this).scope().onFileChange(this.files, angular.element(this).scope().key)" value="{{key}}">
+                                                            <button type="button" ng-click="deleteAttachmentRow(key)" class="btn btn-sm btn-red">Delete Photo</button>
+                                                            <div id="attachment_image_{{key}}"></div>    
+                                                        </div>
+                                                        <button type="button" ng-click="addAttachmentRow()" class="btn btn-md type2 btn-green btn-square">Add Photo</button>
+                                                    </div>
+                                                    
+
+                                                    <!-- <div class="col-md-6">
                                                         <h5 class="color-primary"><b>Attachments</b></h5>
-                                                        <hr class="hr-15"><!-- Separater -->
+                                                        <hr class="hr-15">
                                                         <div class="row">
                                                             <div class="col-md-4">
                                                                 <div class="form-group">
-                                                                    <input type="file" id="" name="attachments[]" multiple>
-                                                                </div><!-- Feild -->
-                                                            </div><!-- Column -->
-                                                        </div><!-- Row -->
+                                                                    <input class="form-control" type="file" id="" name="attachments[]" ng-model="$ctrl.attachments" onchange="angular.element(this).scope().onFileChange()" multiple>
+                                                                </div>
+                                                                <img class="uploaded-image" src="">
+                                                            </div>
+                                                        </div>
                                                     <button type="button" ng-click="addAttachmentRow()" class="btn btn-md type2 btn-green btn-square">
                                                         Add Photo
                                                     </button>
-                                                </div><!-- Column -->
-                                                <div class="tab-pane-footer">
+                                                    </div> --><!-- Column -->
+                                                <!-- <div class="tab-pane-footer">
                                                     <div class="row">
                                                         <div class="col-md-12">
                                                             <a class="btn btn-secondary-dark btn-prev">Previous</a>
                                                             <a class="btn btn-red">Submit</a>
                                                         </div>
                                                     </div>
-                                                </div><!-- Tab Footer -->
+                                                </div> --><!-- Tab Footer -->
                                                 </div><!-- Row -->
                                                 <div class="row">
                                                     <div class="col-md-12">
