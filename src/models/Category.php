@@ -1,34 +1,157 @@
 <?php
 
-namespace Abs\ProductPkg;
+namespace Abs\ProductPkg\Models;
 
+use Abs\CompanyPkg\Traits\CompanyableTrait;
 use Abs\HelperPkg\Traits\SeederTrait;
 use App\Company;
 use App\Entity;
 use App\Index;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Query\Builder;
+use App\Models\BaseModel;
+use Illuminate\Support\Facades\Input;
 
-class Category extends Model {
+class Category extends BaseModel {
 	use SoftDeletes;
+	use CompanyableTrait;
 	use SeederTrait;
+	public function __construct(array $attributes = [])
+	{
+		parent::__construct($attributes);
+		$this->rules = [
+			//'name' => [
+			//	'min:3',
+			//],
+			//'mobile_number' => [
+			//	'min:10',
+			//	'max:12',
+			//	'unique:customers,mobile_number,' . Input::get('id'),
+			//	//'unique:users,username,' . Input::get('id') . ',entity_id,company_id,' . Auth::user()->company_id,
+			//],
+			//'email' => [
+			//	'email',
+			//	'unique:customers,email,' . Input::get('id'),
+			//],
+		];
+
+	}
+
 	protected $table = 'categories';
+
+	/**
+	 * The attributes that are mass assignable.
+	 *
+	 * @var array
+	 */
 	protected $fillable = [
 		'name',
 		'display_order',
-		'description',
-		'usage',
-		'package_type_id',
-		'manufacturer_id',
-		'active_substance_id',
-		'customer_rating',
-		'main_category_id',
 		'seo_name',
 		'page_title',
 		'meta_description',
 		'meta_keywords',
+		'description',
+		'usage',
+		'customer_rating',
+		'starts_at',
+		'has_free',
+		'has_free_shipping',
+		'is_best_selling',
 	];
+
+	protected $casts = [
+		'display_order' => 'integer',
+		'customer_rating' => 'decimal:2',
+		'starts_at' => 'decimal:2',
+		'has_free' => 'boolean',
+		'has_free_shipping' => 'boolean',
+		'is_best_selling' => 'boolean',
+	];
+
+	public $fillableRelationships = [
+		'packageType',
+		'image',
+		'manufacturer',
+		'activeSubstance',
+		'mainCategory',
+	];
+
+	public $sortable = [
+		'name',
+		'display_order',
+		'seo_name',
+		'page_title',
+		'meta_description',
+		'customer_rating',
+	];
+
+	public $sortScopes = [
+		'key_no' => 'orderByKeyNo',
+		'name' => 'orderBytName',
+		'code' => 'orderCode',
+		'mobile_number' => 'orderByMobileNumber',
+		'email' => 'orderByEmail',
+	];
+
+	// Custom attributes specified in this array will be appended to model
+	protected $appends = [
+	];
+
+	//This model's validation rules for input values
+	public $rules = [
+		//Defined in constructor
+	];
+
+	public $relationshipRules = [
+		'address' => [
+			'required',
+			//'hasOne:App\Models\Address,App\Models\Address::optionIds',
+		],
+	];
+
+	// Relationships to auto load
+	public static function relationships($action = '', $format = '') {
+		$relationships = [];
+
+		if (in_array($action, [
+			'index',
+		])) {
+			$relationships = array_merge($relationships, [
+				//'company',
+			]);
+		} else if ($action == 'read') {
+			$relationships = array_merge($relationships, [
+				//'address',
+			]);
+		} else if ($action == 'save') {
+			$relationships = array_merge($relationships, [
+				//'address',
+			]);
+		} else if ($action == 'options') {
+			$relationships = array_merge($relationships, [
+			]);
+		}
+
+		return $relationships;
+	}
+
+	public static function appendRelationshipCounts($action = '', $format = '') {
+		$relationships = [];
+
+		if (in_array($action, [
+			'index',
+		])) {
+			$relationships = array_merge($relationships, [
+				//'accounts',
+			]);
+		} else if ($action == 'options') {
+			$relationships = array_merge($relationships, [
+			]);
+		}
+
+		return $relationships;
+	}
 
 	//--------------------- Relations -------------------------------------------------------
 
