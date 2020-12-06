@@ -18,7 +18,7 @@ class CategoryController extends BaseController {
         //}
     }
 
-    public function afterSave($Model, $isNew, $input, $response){
+    public function afterSave($Model, $isNew, $input, ApiResponse $response){
         //if($isNew){
         //    $Model->code = sprintf('CUS%04d', $Model->id);
         //    $Model->save();
