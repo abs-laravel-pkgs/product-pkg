@@ -2,78 +2,168 @@
 
 namespace Abs\ProductPkg\Models;
 
+use Abs\CompanyPkg\Traits\CompanyableTrait;
 use Abs\HelperPkg\Traits\SeederTrait;
+use App\Attachment;
+use App\Models\BaseModel;
 use App\Company;
 use App\Entity;
 use App\Index;
-use Illuminate\Database\Eloquent\Model;
+use App\Item;
+use App\MainCategory;
+use App\Strength;
+use App\Tag;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Query\Builder;
+use Illuminate\Support\Facades\Input;
 
-class Category extends Model {
+class Category extends BaseModel {
 	use SoftDeletes;
+	use CompanyableTrait;
 	use SeederTrait;
 	protected $table = 'categories';
+
+	public function __construct(array $attributes = []) {
+		parent::__construct($attributes);
+		$this->rules = [
+			'name' => [
+				'min:3',
+				'unique:categories,name,' . Input::get('id'),
+			],
+			'display_order' => [
+			],
+			'seo_name' => [
+				'required',
+				'unique:categories,seo_name,' . Input::get('id'),
+			],
+		];
+
+	}
+
+	/**
+	 * The attributes that are mass assignable.
+	 *
+	 * @var array
+	 */
 	protected $fillable = [
 		'name',
 		'display_order',
-		'description',
-		'usage',
-		'package_type_id',
-		'manufacturer_id',
-		'active_substance_id',
-		'customer_rating',
-		'main_category_id',
 		'seo_name',
 		'page_title',
 		'meta_description',
 		'meta_keywords',
+		'description',
+		'usage',
+		'customer_rating',
+		'has_free',
+		'has_free_shipping',
+		'is_best_selling',
 	];
 
-	//--------------------- Relations -------------------------------------------------------
+	protected $casts = [
+		'has_free' => 'boolean',
+		'has_free_shipping' => 'boolean',
+		'is_best_selling' => 'boolean',
+	];
 
-	public function company() {
-		return $this->belongsTo('App\Company');
+	public $sortable = [
+		'name',
+		'display_order',
+		'seo_name',
+		'page_title',
+		'customer_rating',
+		'has_free',
+		'has_free_shipping',
+		'is_best_selling',
+	];
+
+	public $sortScopes = [
+		//'id' => 'orderById',
+		//'code' => 'orderCode',
+		//'name' => 'orderBytName',
+		//'mobile_number' => 'orderByMobileNumber',
+		//'email' => 'orderByEmail',
+	];
+
+	// Custom attributes specified in this array will be appended to model
+	protected $appends = [
+		'active',
+	];
+
+	//This model's validation rules for input values
+	public $rules = [
+		//Defined in constructor
+	];
+
+	public $fillableRelationships = [
+		'company',
+		'packageType',
+		'image',
+		'manufacturer',
+		'activeSubstance',
+		'mainCategory',
+	];
+
+	public $relationshipRules = [
+		//'address' => [
+		//    'required',
+		//    //'hasOne:App\Models\Address,App\Models\Address::optionIds',
+		//],
+	];
+
+	// Relationships to auto load
+	public static function relationships($action = '', $format = ''): array
+	{
+		$relationships = [];
+
+		if ($action === 'index') {
+			$relationships = array_merge($relationships, [
+				'mainCategory',
+			]);
+		} else if ($action === 'read') {
+			$relationships = array_merge($relationships, [
+				'packageType',
+				'image',
+				'manufacturer',
+				'activeSubstance',
+				'mainCategory',
+			]);
+		} else if ($action === 'save') {
+			$relationships = array_merge($relationships, [
+			]);
+		} else if ($action === 'options') {
+			$relationships = array_merge($relationships, [
+			]);
+		}
+
+		return $relationships;
 	}
 
-	public function strengths() {
-		return $this->belongsToMany('Abs\ProductPkg\Strength');
+	public static function appendRelationshipCounts($action = '', $format = ''): array
+	{
+		$relationships = [];
+
+		if (in_array($action, [
+			'index',
+		])) {
+			$relationships = array_merge($relationships, [
+				'items',
+			]);
+		} else if ($action === 'options') {
+			$relationships = array_merge($relationships, [
+			]);
+		}
+
+		return $relationships;
 	}
 
-	public function image() {
-		return $this->belongsTo('Abs\BasicPkg\Attachment', 'image_id');
-	}
-
-	public function items() {
-		return $this->hasMany('App\Item');
-	}
-
-	public function lowestItem() {
-		return $this->hasMany('App\Item')->orderBy('special_price')->first();
-	}
-
-	public function mainCategory() {
-		return $this->belongsTo('Abs\ProductPkg\MainCategory');
-	}
-
-	public function activeSubstance() {
-		return $this->belongsTo('Abs\BasicPkg\Entity', 'active_substance_id')->where('entity_type_id', 1);
-	}
-
-	public function drugCategory() {
-		return $this->belongsTo('Abs\BasicPkg\Entity', 'drug_category_id')->where('entity_type_id', 2);
-	}
-
-	public function manufacturer() {
-		return $this->belongsTo('Abs\BasicPkg\Entity', 'manufacturer_id')->where('entity_type_id', 3);
-	}
-
-	public function packageType() {
-		return $this->belongsTo('App\Entity', 'package_type_id')->where('entity_type_id', 4);
-	}
-
-	public function tags() {
-		return $this->belongsToMany('App\Tag', 'category_tags', 'category_id');
+	// Dynamic Attributes --------------------------------------------------------------
+	public function getActiveAttribute(): bool
+	{
+		return !isset($this->attributes['deleted_at']) || !$this->attributes['deleted_at'];
 	}
 
 	public function getImagePathAttribute() {
@@ -89,7 +179,57 @@ class Category extends Model {
 		return asset('storage/uploads/category/' . $this->id . '/' . $image_name);
 	}
 
+	// Relationships --------------------------------------------------------------
+	public function strengths(): BelongsTo {
+		return $this->belongsToMany(Strength::class);
+	}
+
+	public function image(): BelongsTo {
+		return $this->belongsTo(Attachment::class, 'image_id');
+	}
+
+	public function items(): HasMany {
+		return $this->hasMany(Item::class);
+	}
+
+	public function mainCategory(): BelongsTo {
+		return $this->belongsTo(MainCategory::class);
+	}
+
+	public function activeSubstance(): BelongsTo {
+		return $this->belongsTo(Entity::class, 'active_substance_id')->where('entity_type_id', 1);
+	}
+
+	public function drugCategory(): BelongsTo {
+		return $this->belongsTo(Entity::class, 'drug_category_id')->where('entity_type_id', 2);
+	}
+
+	public function manufacturer(): BelongsTo {
+		return $this->belongsTo(Entity::class, 'manufacturer_id')->where('entity_type_id', 3);
+	}
+
+	public function packageType(): BelongsTo {
+		return $this->belongsTo(Entity::class, 'package_type_id')->where('entity_type_id', 4);
+	}
+
+	public function tags(): BelongsToMany {
+		return $this->belongsToMany(Tag::class, 'category_tags', 'category_id');
+	}
+
+	public function lowestItem() {
+		return $this->hasMany(Item::class)->orderBy('special_price')->first();
+	}
+
 	//--------------------- Query Scopes -------------------------------------------------------
+	public function scopeFilterSearch($query, $term) {
+		if ($term !== '') {
+			$query->where(function ($query) use ($term) {
+				$query->orWhere('name', 'LIKE', '%' . $term . '%');
+				$query->orWhere('seo_name', 'LIKE', '%' . $term . '%');
+				$query->orWhere('description', 'LIKE', '%' . $term . '%');
+			});
+		}
+	}
 
 	public function scopeBestSelling($query) {
 		return $query->where('is_best_selling', 1)->select(
