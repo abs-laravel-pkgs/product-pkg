@@ -4,7 +4,7 @@ namespace Abs\ProductPkg\Models;
 
 use Abs\CompanyPkg\Traits\CompanyableTrait;
 use Abs\HelperPkg\Traits\SeederTrait;
-use App\Attachment;
+use App\Models\Attachment;
 use App\Models\BaseModel;
 use App\Company;
 use App\Entity;
@@ -105,13 +105,14 @@ class Category extends BaseModel {
 		'manufacturer',
 		'activeSubstance',
 		'mainCategory',
+		'parent',
+		'tags',
 	];
 
 	public $relationshipRules = [
-		//'address' => [
-		//    'required',
-		//    //'hasOne:App\Models\Address,App\Models\Address::optionIds',
-		//],
+		'image' => [
+		    'required',
+		],
 	];
 
 	// Relationships to auto load
@@ -123,18 +124,23 @@ class Category extends BaseModel {
 			$relationships = array_merge($relationships, [
 				'mainCategory',
 			]);
-		} else if ($action === 'read') {
+		}
+		else if ($action === 'read') {
 			$relationships = array_merge($relationships, [
 				'packageType',
 				'image',
 				'manufacturer',
 				'activeSubstance',
 				'mainCategory',
+				'parent',
+				'tags',
 			]);
-		} else if ($action === 'save') {
+		}
+		else if ($action === 'save') {
 			$relationships = array_merge($relationships, [
 			]);
-		} else if ($action === 'options') {
+		}
+		else if ($action === 'options') {
 			$relationships = array_merge($relationships, [
 			]);
 		}
@@ -188,6 +194,10 @@ class Category extends BaseModel {
 		return $this->belongsTo(Attachment::class, 'image_id');
 	}
 
+	public function parent(): BelongsTo {
+		return $this->belongsTo(\App\Models\Masters\Category::class, 'parent_id');
+	}
+
 	public function items(): HasMany {
 		return $this->hasMany(Item::class);
 	}
@@ -229,6 +239,11 @@ class Category extends BaseModel {
 				$query->orWhere('description', 'LIKE', '%' . $term . '%');
 			});
 		}
+	}
+
+	public function scopeFilterExcept($query, $category) {
+		$categoryId =  ($category instanceof \App\Models\Masters\Category ) ? $category->id : $category;
+		$query->where('categories.id','!=', $categoryId);
 	}
 
 	public function scopeBestSelling($query) {

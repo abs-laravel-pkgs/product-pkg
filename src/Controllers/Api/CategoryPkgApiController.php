@@ -10,4 +10,8 @@ use App\Models\Masters\Category;
 class CategoryPkgApiController extends BaseController {
 	use CrudTrait;
 	public $model = Category::class;
+
+	public function alterCrudInput($action, &$input) {
+	}
+
 }
