@@ -1,6 +1,6 @@
 <?php
 
-namespace Abs\ProductPkg;
+namespace Abs\ProductPkg\Models;
 
 use Abs\HelperPkg\Traits\SeederTrait;
 

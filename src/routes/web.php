@@ -1,6 +1,6 @@
 <?php
 
-Route::group(['namespace' => 'Abs\ProductPkg', 'middleware' => ['web', 'auth'], 'prefix' => 'product-pkg'], function () {
+Route::group(['namespace' => 'Abs\ProductPkg\Controllers', 'middleware' => ['web', 'auth'], 'prefix' => 'product-pkg'], function () {
 	//Main Categories
 	Route::get('/main-categories/get-list', 'MainCategoryController@getMainCategoryList')->name('getMainCategoryList');
 	Route::get('/main-category/get-form-data', 'MainCategoryController@getMainCategoryFormData')->name('getMainCategoryFormData');

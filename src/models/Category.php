@@ -4,12 +4,20 @@ namespace Abs\ProductPkg\Models;
 
 use Abs\CompanyPkg\Traits\CompanyableTrait;
 use Abs\HelperPkg\Traits\SeederTrait;
+use App\Models\Attachment;
+use App\Models\BaseModel;
 use App\Company;
 use App\Entity;
 use App\Index;
+use App\Item;
+use App\MainCategory;
+use App\Strength;
+use App\Tag;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Query\Builder;
-use App\Models\BaseModel;
 use Illuminate\Support\Facades\Input;
 
 class Category extends BaseModel {
@@ -39,6 +47,23 @@ class Category extends BaseModel {
 
 	protected $table = 'categories';
 
+	public function __construct(array $attributes = []) {
+		parent::__construct($attributes);
+		$this->rules = [
+			'name' => [
+				'min:3',
+				'unique:categories,name,' . Input::get('id'),
+			],
+			'display_order' => [
+			],
+			'seo_name' => [
+				'required',
+				'unique:categories,seo_name,' . Input::get('id'),
+			],
+		];
+
+	}
+
 	/**
 	 * The attributes that are mass assignable.
 	 *
@@ -54,27 +79,15 @@ class Category extends BaseModel {
 		'description',
 		'usage',
 		'customer_rating',
-		'starts_at',
 		'has_free',
 		'has_free_shipping',
 		'is_best_selling',
 	];
 
 	protected $casts = [
-		'display_order' => 'integer',
-		'customer_rating' => 'decimal:2',
-		'starts_at' => 'decimal:2',
 		'has_free' => 'boolean',
 		'has_free_shipping' => 'boolean',
 		'is_best_selling' => 'boolean',
-	];
-
-	public $fillableRelationships = [
-		'packageType',
-		'image',
-		'manufacturer',
-		'activeSubstance',
-		'mainCategory',
 	];
 
 	public $sortable = [
@@ -82,20 +95,23 @@ class Category extends BaseModel {
 		'display_order',
 		'seo_name',
 		'page_title',
-		'meta_description',
 		'customer_rating',
+		'has_free',
+		'has_free_shipping',
+		'is_best_selling',
 	];
 
 	public $sortScopes = [
-		'key_no' => 'orderByKeyNo',
-		'name' => 'orderBytName',
-		'code' => 'orderCode',
-		'mobile_number' => 'orderByMobileNumber',
-		'email' => 'orderByEmail',
+		//'id' => 'orderById',
+		//'code' => 'orderCode',
+		//'name' => 'orderBytName',
+		//'mobile_number' => 'orderByMobileNumber',
+		//'email' => 'orderByEmail',
 	];
 
 	// Custom attributes specified in this array will be appended to model
 	protected $appends = [
+		'active',
 	];
 
 	//This model's validation rules for input values
@@ -103,32 +119,49 @@ class Category extends BaseModel {
 		//Defined in constructor
 	];
 
+	public $fillableRelationships = [
+		'company',
+		'packageType',
+		'image',
+		'manufacturer',
+		'activeSubstance',
+		'mainCategory',
+		'parent',
+		'tags',
+	];
+
 	public $relationshipRules = [
-		'address' => [
-			'required',
-			//'hasOne:App\Models\Address,App\Models\Address::optionIds',
+		'image' => [
+		    'required',
 		],
 	];
 
 	// Relationships to auto load
-	public static function relationships($action = '', $format = '') {
+	public static function relationships($action = '', $format = ''): array
+	{
 		$relationships = [];
 
-		if (in_array($action, [
-			'index',
-		])) {
+		if ($action === 'index') {
 			$relationships = array_merge($relationships, [
-				//'company',
+				'mainCategory',
 			]);
-		} else if ($action == 'read') {
+		}
+		else if ($action === 'read') {
 			$relationships = array_merge($relationships, [
-				//'address',
+				'packageType',
+				'image',
+				'manufacturer',
+				'activeSubstance',
+				'mainCategory',
+				'parent',
+				'tags',
 			]);
-		} else if ($action == 'save') {
+		}
+		else if ($action === 'save') {
 			$relationships = array_merge($relationships, [
-				//'address',
 			]);
-		} else if ($action == 'options') {
+		}
+		else if ($action === 'options') {
 			$relationships = array_merge($relationships, [
 			]);
 		}
@@ -136,16 +169,17 @@ class Category extends BaseModel {
 		return $relationships;
 	}
 
-	public static function appendRelationshipCounts($action = '', $format = '') {
+	public static function appendRelationshipCounts($action = '', $format = ''): array
+	{
 		$relationships = [];
 
 		if (in_array($action, [
 			'index',
 		])) {
 			$relationships = array_merge($relationships, [
-				//'accounts',
+				'items',
 			]);
-		} else if ($action == 'options') {
+		} else if ($action === 'options') {
 			$relationships = array_merge($relationships, [
 			]);
 		}
@@ -153,50 +187,10 @@ class Category extends BaseModel {
 		return $relationships;
 	}
 
-	//--------------------- Relations -------------------------------------------------------
-
-	public function company() {
-		return $this->belongsTo('App\Company');
-	}
-
-	public function strengths() {
-		return $this->belongsToMany('Abs\ProductPkg\Strength');
-	}
-
-	public function image() {
-		return $this->belongsTo('Abs\BasicPkg\Attachment', 'image_id');
-	}
-
-	public function items() {
-		return $this->hasMany('App\Item');
-	}
-
-	public function lowestItem() {
-		return $this->hasMany('App\Item')->orderBy('special_price')->first();
-	}
-
-	public function mainCategory() {
-		return $this->belongsTo('Abs\ProductPkg\MainCategory');
-	}
-
-	public function activeSubstance() {
-		return $this->belongsTo('Abs\BasicPkg\Entity', 'active_substance_id')->where('entity_type_id', 1);
-	}
-
-	public function drugCategory() {
-		return $this->belongsTo('Abs\BasicPkg\Entity', 'drug_category_id')->where('entity_type_id', 2);
-	}
-
-	public function manufacturer() {
-		return $this->belongsTo('Abs\BasicPkg\Entity', 'manufacturer_id')->where('entity_type_id', 3);
-	}
-
-	public function packageType() {
-		return $this->belongsTo('App\Entity', 'package_type_id')->where('entity_type_id', 4);
-	}
-
-	public function tags() {
-		return $this->belongsToMany('App\Tag', 'category_tags', 'category_id');
+	// Dynamic Attributes --------------------------------------------------------------
+	public function getActiveAttribute(): bool
+	{
+		return !isset($this->attributes['deleted_at']) || !$this->attributes['deleted_at'];
 	}
 
 	public function getImagePathAttribute() {
@@ -212,7 +206,66 @@ class Category extends BaseModel {
 		return asset('storage/uploads/category/' . $this->id . '/' . $image_name);
 	}
 
+	// Relationships --------------------------------------------------------------
+	public function strengths(): BelongsTo {
+		return $this->belongsToMany(Strength::class);
+	}
+
+	public function image(): BelongsTo {
+		return $this->belongsTo(Attachment::class, 'image_id');
+	}
+
+	public function parent(): BelongsTo {
+		return $this->belongsTo(\App\Models\Masters\Category::class, 'parent_id');
+	}
+
+	public function items(): HasMany {
+		return $this->hasMany(Item::class);
+	}
+
+	public function mainCategory(): BelongsTo {
+		return $this->belongsTo(MainCategory::class);
+	}
+
+	public function activeSubstance(): BelongsTo {
+		return $this->belongsTo(Entity::class, 'active_substance_id')->where('entity_type_id', 1);
+	}
+
+	public function drugCategory(): BelongsTo {
+		return $this->belongsTo(Entity::class, 'drug_category_id')->where('entity_type_id', 2);
+	}
+
+	public function manufacturer(): BelongsTo {
+		return $this->belongsTo(Entity::class, 'manufacturer_id')->where('entity_type_id', 3);
+	}
+
+	public function packageType(): BelongsTo {
+		return $this->belongsTo(Entity::class, 'package_type_id')->where('entity_type_id', 4);
+	}
+
+	public function tags(): BelongsToMany {
+		return $this->belongsToMany(Tag::class, 'category_tags', 'category_id');
+	}
+
+	public function lowestItem() {
+		return $this->hasMany(Item::class)->orderBy('special_price')->first();
+	}
+
 	//--------------------- Query Scopes -------------------------------------------------------
+	public function scopeFilterSearch($query, $term) {
+		if ($term !== '') {
+			$query->where(function ($query) use ($term) {
+				$query->orWhere('name', 'LIKE', '%' . $term . '%');
+				$query->orWhere('seo_name', 'LIKE', '%' . $term . '%');
+				$query->orWhere('description', 'LIKE', '%' . $term . '%');
+			});
+		}
+	}
+
+	public function scopeFilterExcept($query, $category) {
+		$categoryId =  ($category instanceof \App\Models\Masters\Category ) ? $category->id : $category;
+		$query->where('categories.id','!=', $categoryId);
+	}
 
 	public function scopeBestSelling($query) {
 		return $query->where('is_best_selling', 1)->select(
