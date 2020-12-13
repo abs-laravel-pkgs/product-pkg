@@ -186,7 +186,7 @@ class Category extends BaseModel {
 	}
 
 	// Relationships --------------------------------------------------------------
-	public function strengths(): BelongsTo {
+	public function strengths(): BelongsToMany {
 		return $this->belongsToMany(Strength::class);
 	}
 
