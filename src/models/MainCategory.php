@@ -1,6 +1,6 @@
 <?php
 
-namespace Abs\ProductPkg;
+namespace Abs\ProductPkg\Models;
 
 use Abs\BasicPkg\Traits\BasicTrait;
 use Illuminate\Database\Eloquent\Model;

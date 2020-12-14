@@ -1,10 +1,10 @@
 <?php
 
-namespace Abs\ProductPkg;
+namespace Abs\ProductPkg\Controllers;
 use Abs\BasicPkg\Attachment;
 use Abs\BasicPkg\Entity;
-use Abs\ProductPkg\Category;
-use Abs\ProductPkg\MainCategory;
+use Abs\ProductPkg\Models\Category;
+use Abs\ProductPkg\Models\MainCategory;
 use App\Tag;
 use App\Http\Controllers\Controller;
 use Auth;
@@ -218,9 +218,10 @@ class CategoryController extends Controller {
 			}
 
 			//category tags
-			$str = ltrim($request->tag_ids,"[");
-			$str1 = rtrim($str,"]");
-			$tag_ids = explode(',', $str1);
+			$tag_ids = json_decode($request->tag_ids);
+			//$str = ltrim($request->tag_ids,"[");
+			//$str1 = rtrim($str,"]");
+			//$tag_ids = explode(',', $str1);
 			$category->tags()->sync($tag_ids);
 
 			DB::commit();
