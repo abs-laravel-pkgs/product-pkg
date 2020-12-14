@@ -152,9 +152,7 @@ class Category extends BaseModel {
 	{
 		$relationships = [];
 
-		if (in_array($action, [
-			'index',
-		])) {
+		if ($action === 'index') {
 			$relationships = array_merge($relationships, [
 				'items',
 			]);

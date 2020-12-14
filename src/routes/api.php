@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\Masters\CategoryApiController;
+use App\Http\Controllers\Api\Masters\ItemApiController;
 
 Route::group(['middleware' => ['api','auth:api']], function () {
 

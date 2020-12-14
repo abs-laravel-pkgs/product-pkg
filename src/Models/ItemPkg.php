@@ -2,70 +2,210 @@
 
 namespace Abs\ProductPkg\Models;
 
+use Abs\CompanyPkg\Traits\CompanyableTrait;
 use Abs\HelperPkg\Traits\SeederTrait;
 use App\Company;
 use App\Config;
 use App\Entity;
 use App\Index;
-use Illuminate\Database\Eloquent\Model;
+use App\Models\Attachment;
+use App\Models\BaseModel;
+use App\Tag;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Input;
+use App\Review;
+use App\Item;
+use App\ShippingMethod;
+use App\Strength;
+use App\Category;
 
-class Item extends Model {
-	use SeederTrait;
+class ItemPkg extends BaseModel {
 	use SoftDeletes;
+	use CompanyableTrait;
+	use SeederTrait;
 	protected $table = 'items';
-	public $timestamps = true;
+
+	public function __construct(array $attributes = []) {
+		parent::__construct($attributes);
+		$this->rules = [
+			'name' => [
+				'min:3',
+				'unique:items,name,' . Input::get('id'),
+			],
+			'seo_name' => [
+				'unique:items,seo_name,' . Input::get('id'),
+			],
+		];
+
+	}
+
+	/**
+	 * The attributes that are mass assignable.
+	 *
+	 * @var array
+	 */
 	protected $fillable = [
-		'category_id',
-		'strength_id',
-		'package_size',
-		'display_order',
-		'regular_price',
-		'special_price',
 		'name',
 		'seo_name',
 		'short_description',
 		'full_description',
 		'rating',
+		'package_size',
+		'display_order',
+		'regular_price',
+		'special_price',
+		'has_free',
+		'has_free_shipping',
+		'free_qty',
 	];
+
+	protected $casts = [
+		'rating' => 'integer',
+		'package_size' => 'integer',
+		'regular_price' => 'decimal',
+		'special_price' => 'decimal',
+		'per_qty_price' => 'decimal',
+		'free_qty' => 'decimal',
+		'has_free' => 'boolean',
+		'has_free_shipping' => 'boolean',
+	];
+
+	public $sortable = [
+		'name',
+		'display_order',
+		'seo_name',
+		'page_title',
+		'rating',
+		'has_free',
+		'has_free_shipping',
+	];
+
+	public $sortScopes = [
+		//'id' => 'orderById',
+		//'code' => 'orderCode',
+		//'name' => 'orderBytName',
+		//'mobile_number' => 'orderByMobileNumber',
+		//'email' => 'orderByEmail',
+	];
+
+	// Custom attributes specified in this array will be appended to model
+	protected $appends = [
+		'active',
+	];
+
+	//This model's validation rules for input values
+	public $rules = [
+		//Defined in constructor
+	];
+
+	public $fillableRelationships = [
+		'image',
+		'company',
+		'category',
+		'strength',
+		'shippingMethod',
+	];
+
+	public $relationshipRules = [
+		'image' => [
+			'required',
+		],
+	];
+
+	// Relationships to auto load
+	public static function relationships($action = '', $format = ''): array
+	{
+		$relationships = [];
+
+		if ($action === 'index') {
+			$relationships = array_merge($relationships, [
+				'category',
+			]);
+		}
+		else if ($action === 'read') {
+			$relationships = array_merge($relationships, [
+				'category',
+				'strength',
+				'shippingMethod',
+				'tags',
+				'image',
+			]);
+		}
+		else if ($action === 'save') {
+			$relationships = array_merge($relationships, [
+			]);
+		}
+		else if ($action === 'options') {
+			$relationships = array_merge($relationships, [
+			]);
+		}
+
+		return $relationships;
+	}
+
+	public static function appendRelationshipCounts($action = '', $format = ''): array
+	{
+		$relationships = [];
+
+		if ($action === 'index') {
+			$relationships = array_merge($relationships, [
+			]);
+		} else if ($action === 'options') {
+			$relationships = array_merge($relationships, [
+			]);
+		}
+
+		return $relationships;
+	}
+
+	// Dynamic Attributes --------------------------------------------------------------
+	public function getActiveAttribute(): bool
+	{
+		return !isset($this->attributes['deleted_at']) || !$this->attributes['deleted_at'];
+	}
 
 	//--------------------- Relations -------------------------------------------------------
 
-	public function mainCategory() {
-		return $this->belongsTo('Abs\ProductPkg\MainCategory');
+	public function category(): BelongsTo {
+		return $this->belongsTo(\App\Models\Masters\Category::class);
 	}
 
-	public function category() {
-		return $this->belongsTo('App\Category');
+	public function strengths(): BelongsTo {
+		return $this->belongsTo(Strength::class, 'strength_id');
 	}
 
-	public function strengths() {
-		return $this->belongsTo('App\Strength', 'strength_id');
+	public function strength(): BelongsTo {
+		return $this->belongsTo(Strength::class);
 	}
 
-	public function strength() {
-		return $this->belongsTo('App\Strength');
+	public function shippingMethod(): BelongsTo {
+		return $this->belongsTo(ShippingMethod::class);
 	}
 
-	public function shippingMethod() {
-		return $this->belongsTo('App\ShippingMethod');
+	public function shippingMethods(): BelongsTo {
+		return $this->belongsTo(ShippingMethod::class, 'shipping_method_id');
 	}
 
-	public function shippingMethods() {
-		return $this->belongsTo('App\ShippingMethod', 'shipping_method_id');
+	public function tags(): BelongsToMany {
+		return $this->belongsToMany(Tag::class, 'item_tags', 'item_id');
 	}
 
-	public function tags() {
-		return $this->belongsToMany('App\Tag', 'item_tags', 'item_id');
+	public function image(): HasOne {
+		return $this->hasOne(Attachment::class, 'entity_id')->where('attachment_of_id', \App\Models\Masters\Item::$TAG_TYPE_CONFIG_ID);
 	}
 
-	public function reviews(){
-		return $this->morphMany('App\Review', 'reviewable');
+	public function reviews(): MorphMany{
+		return $this->morphMany(Review::class, 'reviewable');
 	}
 
-	public function relatedItems(){
-		return $this->belongsToMany('App\Item', 'item_related_item','related_item_id');
+	public function relatedItems(): BelongsToMany{
+		return $this->belongsToMany(Item::class, 'item_related_item','related_item_id');
 	}
+
 	//--------------------- Query Scopes -------------------------------------------------------
 
 	public function scopeFilterByTagName($query, $tagName){
@@ -76,7 +216,8 @@ class Item extends Model {
 
 	//--------------------- Static Operations -------------------------------------------------------
 
-	public static function saveFromObject($record_data) {
+	public static function saveFromObject($record_data): array
+	{
 		//$record = [
 		//	'Company Code' => $record_data->company_code,
 		//	'Display Order' => $record_data->display_order,
@@ -102,7 +243,8 @@ class Item extends Model {
 		return static::createFromObject($record_data);
 	}
 
-	public static function createFromObject($record_data, $company = null) {
+	public static function createFromObject($record_data, $company = null): array
+	{
 		try {
 			$errors = [];
 			$company = Company::where('code', $record_data->company_code)->first();
