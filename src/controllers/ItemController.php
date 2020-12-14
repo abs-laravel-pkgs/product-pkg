@@ -9,6 +9,7 @@ use Abs\ShippingMethodPkg\ShippingMethod;
 use App\Http\Controllers\Controller;
 use Auth;
 use App\Tag;
+use App\Index;
 use App\Attachment;
 use Carbon\Carbon;
 use DB;
@@ -126,7 +127,8 @@ class ItemController extends Controller {
 			'main_category_list' => collect(MainCategory::where('company_id', $this->company_id)->select('id', 'name')->get())->prepend(['name' => 'Select Main Category', 'id' => '']),
 			'shipping_method_list' => collect(ShippingMethod::where('company_id', $this->company_id)->select('id', 'name')->get())->prepend(['name' => 'Select Shipping Method', 'id' => '']),
 			'strength_list' => collect(Strength::where('company_id', $this->company_id)->select('id', 'name')->get())->prepend(['name' => 'Select Strength', 'id' => '']),
-			'tag_list' => collect(Tag::where('taggable_type_id', 200)->select('id', 'name')->get())->prepend(['name' => 'Select Tags', 'id' => '']),
+			'tag_list' => collect(Tag::where('taggable_type_id', 201)->select('id', 'name')->get())->prepend(['name' => 'Select Tags', 'id' => '']),
+			'item_list' => collect(Item::select('id', 'name')->limit(25)->get())->prepend(['name' => 'Select Items', 'id' => '']),
 		];
 		$this->data['action'] = $action;
 		$this->data['theme'];
@@ -211,11 +213,30 @@ class ItemController extends Controller {
 			}
 			$item->save();
 
-			//category tags	
+			//Indexes
+			$index = Index::firstOrNew([
+				// 'company_id' => $company->id,
+				'company_id' => Auth::user()->company_id,
+				'url' => $request->seo_name,
+			]);
+			$index->company_id = Auth::user()->company_id;
+			$index->url = $request->seo_name;
+			$index->page_type_id = 22;
+			$index->save();
+
+
+			//item tags	
 			$str = ltrim($request->tag_ids,"[");
 			$str1 = rtrim($str,"]");
 			$tag_ids = explode(',', $str1);
 			$item->tags()->sync($tag_ids);
+
+			//item tags	
+			$str2 = ltrim($request->related_item_ids,"[");
+			$str3 = rtrim($str2,"]");
+			$related_item_ids = explode(',', $str3);
+			// dd($item->id, $related_item_ids);
+			$item->relatedItems()->sync($related_item_ids);
 
 			//primary attachment
 			if($request->primary_attachment) {

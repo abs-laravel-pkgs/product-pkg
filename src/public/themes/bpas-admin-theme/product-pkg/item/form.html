@@ -261,16 +261,32 @@
                                                     </div><!-- Column -->
                                                 </div><!-- Row -->
                                                 <div class="row">
+                                                    <div class="col-md-3">
+                                                        <div class="form-group">
+                                                            <label>Related items</label>
+                                                            <md-select ng-model="$ctrl.item.related_item_ids" data-md-container-class="selectdemoSelectHeader" placeholder="Select Items" multiple>
+                                                                <md-select-header class="demo-select-header">
+                                                                    <input ng-model="searchTerm3" type="search" placeholder="Search for a Item" class="demo-header-searchbox md-text">
+                                                                </md-select-header>
+                                                                <md-optgroup>
+                                                                    <md-option ng-value="i.id" ng-repeat="i in $ctrl.extras.item_list | filter:searchTerm3">{{i.name}}</md-option>
+                                                                </md-optgroup>
+                                                            </md-select>
+                                                            <input type="hidden" class="form-control" name="related_item_ids" value="{{$ctrl.item.related_item_ids}}">
+                                                        </div>
+                                                    </div>
+                                                </div><!-- Row -->
+                                                <div class="row">
                                                     <div class="col-md-4">
                                                         <div class="form-group">
                                                             <label>Short Description</label>
-                                                            <textarea name="short_description" ng-model="$ctrl.category.short_description" class="form-control" placeholder="Enter Short Description" rows="3" autocomplete="off" minlength="3" maxlength="255"></textarea>
+                                                            <textarea name="short_description" ng-model="$ctrl.item.short_description" class="form-control" placeholder="Enter Short Description" rows="3" autocomplete="off" minlength="3" maxlength="255"></textarea>
                                                         </div>
                                                     </div>
                                                     <div class="col-md-8">
                                                         <div class="form-group">
                                                             <label>Full Description</label>
-                                                            <textarea name="full_description" ng-model="$ctrl.category.full_description" class="form-control" placeholder="Enter Full Description" rows="3" autocomplete="off" minlength="3" maxlength="255"></textarea>
+                                                            <textarea name="full_description" ng-model="$ctrl.item.full_description" class="form-control" placeholder="Enter Full Description" rows="3" autocomplete="off" minlength="3" maxlength="255"></textarea>
                                                         </div>
                                                     </div>
                                                 </div>

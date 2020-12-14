@@ -64,13 +64,16 @@ class Item extends Model {
 	}
 
 	public function relatedItems(){
-		return $this->belongsToMany('App\Item', 'item_related_item','related_item_id');
+		return $this->belongsToMany('App\Item', 'item_related_item','item_id');
 	}
 	//--------------------- Query Scopes -------------------------------------------------------
 
 	public function scopeFilterByTagName($query, $tagName){
 		return $query->whereHas('tags',function($query) use ($tagName){
-			$query->where('name',$tagName);
+			$query->select('*','items.id as item_id', 'attachments.id as attachment_id','attachments.name as primary_attachment')
+				->leftjoin('attachments', 'items.id', 'attachments.entity_id')
+				->where('items.name',$tagName)
+                ->where('attachments.attachment_type_id',202);
 		});
 	}
 
