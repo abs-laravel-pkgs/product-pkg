@@ -20,7 +20,7 @@ class IndexesC extends Migration {
 			$table->foreign('company_id')->references('id')->on('companies')->onDelete('CASCADE')->onUpdate('cascade');
 			$table->foreign('page_type_id')->references('id')->on('configs')->onDelete('CASCADE')->onUpdate('cascade');
 
-			$table->unique(["company_id", "url", 'page_type_id']);
+			$table->unique(["company_id", "url"]);
 		});
 	}
 

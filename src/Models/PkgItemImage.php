@@ -2,45 +2,31 @@
 
 namespace Abs\ProductPkg\Models;
 
-use Abs\CompanyPkg\Traits\CompanyableTrait;
 use Abs\HelperPkg\Traits\SeederTrait;
 use App\Company;
-use App\Config;
 use App\Entity;
-use App\Index;
-use App\Models\Attachment;
 use App\Models\BaseModel;
-use App\Models\Masters\ItemImage;
-use App\Tag;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\HasOne;
-use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Support\Facades\Input;
-use App\Review;
-use App\Item;
 use App\ShippingMethod;
 use App\Strength;
 use App\Category;
 
-class ItemPkg extends BaseModel {
+class PkgItemImage extends BaseModel {
 	use SoftDeletes;
-	use CompanyableTrait;
 	use SeederTrait;
-	protected $table = 'items';
+	protected $table = 'item_images';
 
 	public function __construct(array $attributes = []) {
 		parent::__construct($attributes);
 		$this->rules = [
-			'name' => [
-				'min:3',
-				'unique:items,name,' . Input::get('id'),
-			],
-			'seo_name' => [
-				'unique:items,seo_name,' . Input::get('id'),
-			],
+			//'name' => [
+			//	'min:3',
+			//	'unique:items,name,' . Input::get('id'),
+			//],
+			//'seo_name' => [
+			//	'unique:items,seo_name,' . Input::get('id'),
+			//],
 		];
 
 	}
@@ -51,42 +37,15 @@ class ItemPkg extends BaseModel {
 	 * @var array
 	 */
 	protected $fillable = [
-		'name',
-		'seo_name',
-		'short_description',
-		'full_description',
-		'rating',
-		'package_size',
-		'display_order',
-		'regular_price',
-		'special_price',
-		'has_free',
-		'has_free_shipping',
-		'free_qty',
-		'per_qty_price',
-		'page_title',
-		'meta_description',
-		'meta_keywords',
+		'primary',
 	];
 
 	protected $casts = [
-		'rating' => 'integer',
-		'regular_price' => 'float',
-		'special_price' => 'float',
-		'per_qty_price' => 'float',
-		'free_qty' => 'float',
-		'has_free' => 'boolean',
-		'has_free_shipping' => 'boolean',
+		'primary' => 'boolean',
 	];
 
 	public $sortable = [
-		'name',
-		'display_order',
-		'seo_name',
-		'page_title',
-		'rating',
-		'has_free',
-		'has_free_shipping',
+		'primary',
 	];
 
 	public $sortScopes = [
@@ -99,7 +58,6 @@ class ItemPkg extends BaseModel {
 
 	// Custom attributes specified in this array will be appended to model
 	protected $appends = [
-		'active',
 	];
 
 	//This model's validation rules for input values
@@ -109,15 +67,13 @@ class ItemPkg extends BaseModel {
 
 	public $fillableRelationships = [
 		'image',
-		'company',
-		'category',
-		'strength',
-		'shippingMethod',
-		'tags',
-		'relatedItems',
+		'item',
 	];
 
 	public $relationshipRules = [
+		'item' => [
+			'required',
+		],
 		'image' => [
 			'required',
 		],
@@ -130,15 +86,11 @@ class ItemPkg extends BaseModel {
 
 		if ($action === 'index') {
 			$relationships = array_merge($relationships, [
-				'category',
+				//'category',
 			]);
 		}
 		else if ($action === 'read') {
 			$relationships = array_merge($relationships, [
-				'category',
-				'strength',
-				'shippingMethod',
-				'tags',
 				'image',
 			]);
 		}
@@ -170,67 +122,20 @@ class ItemPkg extends BaseModel {
 	}
 
 	// Dynamic Attributes --------------------------------------------------------------
-	public function getActiveAttribute(): bool
-	{
-		return !isset($this->attributes['deleted_at']) || !$this->attributes['deleted_at'];
-	}
 
 	//--------------------- Relations -------------------------------------------------------
 
-	public function category(): BelongsTo {
-		return $this->belongsTo(\App\Models\Masters\Category::class);
-	}
-
-	public function strengths(): BelongsTo {
-		return $this->belongsTo(Strength::class, 'strength_id');
-	}
-
-	public function strength(): BelongsTo {
-		return $this->belongsTo(Strength::class);
-	}
-
-	public function shippingMethod(): BelongsTo {
-		return $this->belongsTo(ShippingMethod::class);
-	}
-
-	public function shippingMethods(): BelongsTo {
-		return $this->belongsTo(ShippingMethod::class, 'shipping_method_id');
-	}
-
-	public function tags(): BelongsToMany {
-		return $this->belongsToMany(Tag::class, 'item_tags', 'item_id');
+	public function item(): BelongsTo {
+		return $this->belongsTo(\App\Models\Masters\Item::class);
 	}
 
 	public function image(): BelongsTo {
-		return $this->belongsTo(Attachment::class, 'image_id');
-	}
-
-	public function images(): HasMany {
-		return $this->hasMany(ItemImage::class);
-	}
-
-	public function reviews(): MorphMany{
-		return $this->morphMany(Review::class, 'reviewable');
-	}
-
-	public function relatedItems(): BelongsToMany{
-		return $this->belongsToMany(Item::class, 'item_related_item','related_item_id');
+		return $this->belongsTo(\Abs\BasicPkg\Models\Attachment::class);
 	}
 
 	//--------------------- Query Scopes -------------------------------------------------------
-	public function scopeFilterSearch($query, $term): void {
-		if ($term !== '') {
-			$query->where(function ($query) use ($term) {
-				$query->orWhere('name', 'LIKE', '%' . $term . '%');
-			});
-		}
-	}
-
-
-	public function scopeFilterByTagName($query, $tagName){
-		return $query->whereHas('tags',function($query) use ($tagName){
-			$query->where('name',$tagName);
-		});
+	public function scopeFilterPrimary($query, $primary): void {
+		$query->orWhere('primary', $primary);
 	}
 
 	//--------------------- Static Operations -------------------------------------------------------
