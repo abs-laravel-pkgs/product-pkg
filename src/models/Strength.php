@@ -2,12 +2,10 @@
 
 namespace Abs\ProductPkg\Models;
 
-use Abs\BasicPkg\Traits\BasicTrait;
-use Illuminate\Database\Eloquent\Model;
+use Abs\BasicPkg\Models\BaseModel;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class Strength extends Model {
-	use BasicTrait;
+class Strength extends BaseModel {
 	use SoftDeletes;
 	protected $table = 'strengths';
 	protected $fillable = [

@@ -61,15 +61,18 @@ class ItemPkg extends BaseModel {
 		'has_free',
 		'has_free_shipping',
 		'free_qty',
+		'per_qty_price',
+		'page_title',
+		'meta_description',
+		'meta_keywords',
 	];
 
 	protected $casts = [
 		'rating' => 'integer',
-		'package_size' => 'integer',
-		'regular_price' => 'decimal',
-		'special_price' => 'decimal',
-		'per_qty_price' => 'decimal',
-		'free_qty' => 'decimal',
+		'regular_price' => 'float',
+		'special_price' => 'float',
+		'per_qty_price' => 'float',
+		'free_qty' => 'float',
 		'has_free' => 'boolean',
 		'has_free_shipping' => 'boolean',
 	];
@@ -108,6 +111,7 @@ class ItemPkg extends BaseModel {
 		'category',
 		'strength',
 		'shippingMethod',
+		'tags',
 	];
 
 	public $relationshipRules = [
@@ -194,8 +198,8 @@ class ItemPkg extends BaseModel {
 		return $this->belongsToMany(Tag::class, 'item_tags', 'item_id');
 	}
 
-	public function image(): HasOne {
-		return $this->hasOne(Attachment::class, 'entity_id')->where('attachment_of_id', \App\Models\Masters\Item::$TAG_TYPE_CONFIG_ID);
+	public function image(): BelongsTo {
+		return $this->belongsTo(Attachment::class, 'image_id');
 	}
 
 	public function reviews(): MorphMany{
@@ -207,6 +211,14 @@ class ItemPkg extends BaseModel {
 	}
 
 	//--------------------- Query Scopes -------------------------------------------------------
+	public function scopeFilterSearch($query, $term): void {
+		if ($term !== '') {
+			$query->where(function ($query) use ($term) {
+				$query->orWhere('name', 'LIKE', '%' . $term . '%');
+			});
+		}
+	}
+
 
 	public function scopeFilterByTagName($query, $tagName){
 		return $query->whereHas('tags',function($query) use ($tagName){
