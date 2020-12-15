@@ -140,6 +140,7 @@ class ItemPkg extends BaseModel {
 				'shippingMethod',
 				'tags',
 				'image',
+				'relatedItems',
 			]);
 		}
 		else if ($action === 'save') {
