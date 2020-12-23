@@ -5,17 +5,17 @@ namespace Abs\ProductPkg\Models;
 use Abs\HelperPkg\Traits\SeederTrait;
 use App\Company;
 use App\Entity;
+use App\Models\Attachment;
 use App\Models\BaseModel;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use App\ShippingMethod;
 use App\Strength;
 use App\Category;
 
 class PkgItemImage extends BaseModel {
-	use SoftDeletes;
 	use SeederTrait;
 	protected $table = 'item_images';
+	public $timestamps = false;
 
 	public function __construct(array $attributes = []) {
 		parent::__construct($attributes);
@@ -130,7 +130,7 @@ class PkgItemImage extends BaseModel {
 	}
 
 	public function image(): BelongsTo {
-		return $this->belongsTo(\Abs\BasicPkg\Models\Attachment::class);
+		return $this->belongsTo(Attachment::class);
 	}
 
 	//--------------------- Query Scopes -------------------------------------------------------

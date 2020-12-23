@@ -42,7 +42,6 @@ class ItemPkg extends BaseModel {
 				'unique:items,seo_name,' . Input::get('id'),
 			],
 		];
-
 	}
 
 	/**
@@ -115,6 +114,7 @@ class ItemPkg extends BaseModel {
 		'shippingMethod',
 		'tags',
 		'relatedItems',
+		'images',
 	];
 
 	public $relationshipRules = [
@@ -140,6 +140,7 @@ class ItemPkg extends BaseModel {
 				'shippingMethod',
 				'tags',
 				'image',
+				'images.image',
 				'relatedItems',
 			]);
 		}
@@ -226,7 +227,6 @@ class ItemPkg extends BaseModel {
 			});
 		}
 	}
-
 
 	public function scopeFilterByTagName($query, $tagName){
 		return $query->whereHas('tags',function($query) use ($tagName){
