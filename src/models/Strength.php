@@ -3,6 +3,7 @@
 namespace Abs\ProductPkg\Models;
 
 use Abs\BasicPkg\Models\BaseModel;
+use App\Item;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Strength extends BaseModel {
