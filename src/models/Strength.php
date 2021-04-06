@@ -15,7 +15,7 @@ class Strength extends BaseModel {
 	];
 
 	public function type() {
-		return $this->belongsTo('Abs\BasicPkg\Entity', 'type_id')->where('entity_type_id', 5);
+		return $this->belongsTo('Abs\BasicPkg\Models\Entity', 'type_id')->where('entity_type_id', 5);
 	}
 
 	public function items($category_id) {
