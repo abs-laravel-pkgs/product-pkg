@@ -215,9 +215,13 @@ class ItemPkg extends BaseModel {
 		return $this->morphMany(Review::class, 'reviewable');
 	}
 
-	public function relatedItems(): BelongsToMany{
-		return $this->belongsToMany(Item::class, 'item_related_item','related_item_id');
+	public function relatedItems(){
+		return $this->belongsToMany('App\Item', 'item_related_item','item_id');
 	}
+
+	// public function relatedItems(): BelongsToMany{
+	// 	return $this->belongsToMany(Item::class, 'item_related_item','related_item_id');
+	// }
 
 	//--------------------- Query Scopes -------------------------------------------------------
 	public function scopeFilterSearch($query, $term): void {
@@ -230,7 +234,10 @@ class ItemPkg extends BaseModel {
 
 	public function scopeFilterByTagName($query, $tagName){
 		return $query->whereHas('tags',function($query) use ($tagName){
-			$query->where('name',$tagName);
+			$query->select('*','items.id as item_id', 'attachments.id as attachment_id','attachments.name as primary_attachment')
+				->leftjoin('attachments', 'items.id', 'attachments.entity_id')
+				->where('items.name',$tagName)
+                ->where('attachments.attachment_type_id',202);
 		});
 	}
 
