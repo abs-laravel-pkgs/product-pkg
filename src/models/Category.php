@@ -24,6 +24,27 @@ class Category extends BaseModel {
 	use SoftDeletes;
 	use CompanyableTrait;
 	use SeederTrait;
+	public function __construct(array $attributes = [])
+	{
+		parent::__construct($attributes);
+		$this->rules = [
+			//'name' => [
+			//	'min:3',
+			//],
+			//'mobile_number' => [
+			//	'min:10',
+			//	'max:12',
+			//	'unique:customers,mobile_number,' . Input::get('id'),
+			//	//'unique:users,username,' . Input::get('id') . ',entity_id,company_id,' . Auth::user()->company_id,
+			//],
+			//'email' => [
+			//	'email',
+			//	'unique:customers,email,' . Input::get('id'),
+			//],
+		];
+
+	}
+
 	protected $table = 'categories';
 
 	public function __construct(array $attributes = []) {
