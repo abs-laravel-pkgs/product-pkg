@@ -1,8 +1,8 @@
 <?php
 
-namespace Abs\ProductPkg;
-use Abs\BasicPkg\Attachment;
-use Abs\ProductPkg\MainCategory;
+namespace Abs\ProductPkg\Controllers;
+use Abs\BasicPkg\Models\Attachment;
+use Abs\ProductPkg\Models\MainCategory;
 use App\Http\Controllers\Controller;
 use Auth;
 use Carbon\Carbon;
