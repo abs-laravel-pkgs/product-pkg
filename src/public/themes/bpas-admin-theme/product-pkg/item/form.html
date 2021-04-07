@@ -127,11 +127,8 @@
                                                         <div class="form-group">
                                                             <label>
                                                                 Display Order
-                                                                <span class="mandatory">
-                                                                    *
-                                                                </span>
                                                             </label>
-                                                            <input type="text" name="display_order" ng-model='$ctrl.item.display_order' class="form-control required" placeholder="Enter Display Order" autocomplete="off" oninput="this.value = this.value.replace(/[^0-9]/g, '').replace(/(\..*)\./g, '$1');" minlength="3" maxlength="8">
+                                                            <input type="text" name="display_order" ng-model='$ctrl.item.display_order' class="form-control required" placeholder="Enter Display Order" autocomplete="off" oninput="this.value = this.value.replace(/[^0-9]/g, '').replace(/(\..*)\./g, '$1');" maxlength="8">
                                                         </div>
                                                     </div>
                                                     <div class="col-md-3">
@@ -176,11 +173,8 @@
                                                         <div class="form-group">
                                                             <label>
                                                                 Seo Name
-                                                                <span class="mandatory">
-                                                                    *
-                                                                </span>
                                                             </label>
-                                                            <input type="text" name="seo_name" ng-model='$ctrl.item.seo_name' class="form-control required" placeholder="Enter Seo Name">
+                                                            <input type="text" name="seo_name" ng-model='$ctrl.item.seo_name' class="form-control" placeholder="Enter Seo Name">
                                                         </div>
                                                     </div>
                                                     <div class="col-md-3">

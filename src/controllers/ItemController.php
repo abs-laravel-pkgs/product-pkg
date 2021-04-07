@@ -1,11 +1,11 @@
 <?php
 
-namespace Abs\ProductPkg;
-use Abs\ProductPkg\Category;
-use Abs\ProductPkg\Item;
-use Abs\ProductPkg\MainCategory;
-use Abs\ProductPkg\Strength;
-use Abs\ShippingMethodPkg\ShippingMethod;
+namespace Abs\ProductPkg\Controllers;
+use Abs\ProductPkg\Models\Category;
+use App\Item;
+use Abs\ProductPkg\Models\MainCategory;
+use Abs\ProductPkg\Models\Strength;
+use App\ShippingMethod;
 use App\Http\Controllers\Controller;
 use Auth;
 use App\Tag;
@@ -214,15 +214,17 @@ class ItemController extends Controller {
 			$item->save();
 
 			//Indexes
-			$index = Index::firstOrNew([
-				// 'company_id' => $company->id,
-				'company_id' => Auth::user()->company_id,
-				'url' => $request->seo_name,
-			]);
-			$index->company_id = Auth::user()->company_id;
-			$index->url = $request->seo_name;
-			$index->page_type_id = 22;
-			$index->save();
+			if($request->seo_name){
+				$index = Index::firstOrNew([
+					// 'company_id' => $company->id,
+					'company_id' => Auth::user()->company_id,
+					'url' => $request->seo_name,
+				]);
+				$index->company_id = Auth::user()->company_id;
+				$index->url = $request->seo_name;
+				$index->page_type_id = 22;
+				$index->save();
+			}
 
 
 			//item tags	
@@ -231,12 +233,14 @@ class ItemController extends Controller {
 			$tag_ids = explode(',', $str1);
 			$item->tags()->sync($tag_ids);
 
-			//item tags	
+			//item tags
 			$str2 = ltrim($request->related_item_ids,"[");
 			$str3 = rtrim($str2,"]");
 			$related_item_ids = explode(',', $str3);
-			// dd($item->id, $related_item_ids);
-			$item->relatedItems()->sync($related_item_ids);
+			$related_item_ids = json_decode($request->related_item_ids);
+			if($related_item_ids){
+				$item->relatedItems()->sync($related_item_ids);
+			}
 
 			//primary attachment
 			if($request->primary_attachment) {
