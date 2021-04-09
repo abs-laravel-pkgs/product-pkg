@@ -62,7 +62,7 @@ class CategoryController extends Controller {
 					$query->whereNotNull('categories.deleted_at');
 				}
 			})
-			->orderby('categories.id', 'desc')
+			->orderby('categories.name', 'asc')
 		;
 
 		return Datatables::of($categories)
