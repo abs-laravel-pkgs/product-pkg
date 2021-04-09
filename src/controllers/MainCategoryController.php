@@ -46,7 +46,7 @@ class MainCategoryController extends Controller {
 					$query->whereNotNull('main_categories.deleted_at');
 				}
 			})
-			->orderby('id', 'desc');
+			->orderby('name', 'asc');
 
 		return Datatables::of($main_categories)
 			->addColumn('category_name', function ($main_categories) {

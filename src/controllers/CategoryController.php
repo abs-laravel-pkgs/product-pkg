@@ -1,8 +1,8 @@
 <?php
 
 namespace Abs\ProductPkg\Controllers;
-use Abs\BasicPkg\Attachment;
-use Abs\BasicPkg\Entity;
+use Abs\BasicPkg\Models\Attachment;
+use Abs\BasicPkg\Models\Entity;
 use Abs\ProductPkg\Models\Category;
 use Abs\ProductPkg\Models\MainCategory;
 use App\Tag;
