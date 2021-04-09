@@ -22,7 +22,6 @@ app.component('categoryList', {
         $scope.loading = true;
         var self = this;
         self.hasPermission = HelperService.hasPermission;
-        alert(laravel_routes['filterCategory'])
         $http.get(
             laravel_routes['filterCategory'],{
         }).then(function(response) {
