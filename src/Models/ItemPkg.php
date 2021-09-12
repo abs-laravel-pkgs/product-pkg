@@ -146,10 +146,12 @@ class ItemPkg extends BaseModel {
 		}
 		else if ($action === 'save') {
 			$relationships = array_merge($relationships, [
+				'category',
 			]);
 		}
 		else if ($action === 'options') {
 			$relationships = array_merge($relationships, [
+				'category',
 			]);
 		}
 
@@ -227,9 +229,14 @@ class ItemPkg extends BaseModel {
 	public function scopeFilterSearch($query, $term): void {
 		if ($term !== '') {
 			$query->where(function ($query) use ($term) {
-				$query->orWhere('name', 'LIKE', '%' . $term . '%');
+				$query->orWhere('name', 'LIKE', "%{$term}%");
 			});
 		}
+	}
+
+	public function scopeFilterCategory($query, $category): void {
+		$categoryId = $category instanceof Category ? $category->id : $category;
+		$query->where('category_id', '=', $categoryId);
 	}
 
 	public function scopeFilterByTagName($query, $tagName){
