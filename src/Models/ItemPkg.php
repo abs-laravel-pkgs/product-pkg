@@ -30,6 +30,11 @@ class ItemPkg extends BaseModel {
 	use CompanyableTrait;
 	use SeederTrait;
 	protected $table = 'items';
+	protected $visible = [
+		'id',
+		'name',
+		'special_price',
+	];
 
 	public function __construct(array $attributes = []) {
 		parent::__construct($attributes);
