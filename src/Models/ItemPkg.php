@@ -136,6 +136,7 @@ class ItemPkg extends BaseModel {
 		if ($action === 'index') {
 			$relationships = array_merge($relationships, [
 				'category',
+				'image',
 			]);
 		}
 		else if ($action === 'read') {

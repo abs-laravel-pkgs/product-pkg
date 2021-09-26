@@ -124,6 +124,7 @@ class Category extends BaseModel {
 		if ($action === 'index') {
 			$relationships = array_merge($relationships, [
 				'mainCategory',
+				'image',
 			]);
 		}
 		else if ($action === 'read') {
