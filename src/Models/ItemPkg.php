@@ -32,8 +32,11 @@ class ItemPkg extends BaseModel {
 	protected $table = 'items';
 	protected $visible = [
 		'id',
-		'name',
-		'special_price',
+    'name',
+    'seo_name',
+    'regular_price',
+    'special_price',
+    'image',
 	];
 
 	public function __construct(array $attributes = []) {

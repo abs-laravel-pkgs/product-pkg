@@ -136,6 +136,7 @@ class Category extends BaseModel {
 				'mainCategory',
 				'parent',
 				'tags',
+        'items.image',
 			]);
 		}
 		else if ($action === 'save') {
@@ -158,9 +159,13 @@ class Category extends BaseModel {
 			$relationships = array_merge($relationships, [
 				'items',
 			]);
-		} else if ($action === 'options') {
-			$relationships = array_merge($relationships, [
-			]);
+    } else if ($action === 'read') {
+      $relationships = array_merge($relationships, [
+//        'items',
+      ]);
+    } else if ($action === 'options') {
+      $relationships = array_merge($relationships, [
+      ]);
 		}
 
 		return $relationships;

@@ -14,6 +14,12 @@ class Index extends BaseModel {
 		'page_type_id',
 		'company_id'
 	];
+  protected $visible = [
+    'id',
+    'key',
+    'url',
+    'pageType',
+  ];
 
 	public static function createFromObject($record_data, $company = null) {
 
@@ -50,4 +56,42 @@ class Index extends BaseModel {
 		$record->save();
 		return $record;
 	}
+
+	// Relationships -----------------------------
+
+  public function pageType(){
+	  return $this->belongsTo(Config::class, 'page_type_id');
+  }
+
+
+  // Relationships to auto load
+  public static function relationships($action = '', $format = ''): array
+  {
+    $relationships = [];
+
+    if ($action === 'index') {
+//      $relationships = array_merge($relationships, [
+//        'mainCategory',
+//        'image',
+//      ]);
+    }
+    else if ($action === 'read') {
+//      $relationships = array_merge($relationships, [
+//        'packageType',
+//        'image',
+//        'manufacturer',
+//        'activeSubstance',
+//        'mainCategory',
+//        'parent',
+//        'tags',
+//      ]);
+    }
+    else if ($action === 'options') {
+      $relationships = array_merge($relationships, [
+      ]);
+    }
+
+    return $relationships;
+  }
+
 }
