@@ -161,7 +161,7 @@ class Category extends BaseModel {
 			]);
     } else if ($action === 'read') {
       $relationships = array_merge($relationships, [
-//        'items',
+        'items',
       ]);
     } else if ($action === 'options') {
       $relationships = array_merge($relationships, [
@@ -500,6 +500,5 @@ class Category extends BaseModel {
 			$strength->id,
 		]);
 	}
-
 
 }
