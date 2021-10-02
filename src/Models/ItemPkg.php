@@ -37,6 +37,7 @@ class ItemPkg extends BaseModel {
     'regular_price',
     'special_price',
     'image',
+    'category',
 	];
 
 	public function __construct(array $attributes = []) {
