@@ -32,6 +32,10 @@ class Category extends BaseModel {
         'name',
         'seo_name',
         'image',
+        'display_order',
+        'main_category_id',
+        'page_title',
+        'has_free'
     ];
 
 	public function __construct(array $attributes = []) {
