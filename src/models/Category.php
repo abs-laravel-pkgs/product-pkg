@@ -111,9 +111,9 @@ class Category extends BaseModel {
 	];
 
 	public $relationshipRules = [
-		'image' => [
-		    'required',
-		],
+//		'image' => [
+//		    'required',
+//		],
 	];
 
 	// Relationships to auto load
