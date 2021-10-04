@@ -36,10 +36,10 @@ class Category extends BaseModel {
 			],
 			'display_order' => [
 			],
-			'seo_name' => [
-				'required',
-				'unique:categories,seo_name,' . Input::get('id'),
-			],
+    //			'seo_name' => [
+    //				'required',
+    //				'unique:categories,seo_name,' . Input::get('id'),
+    //			],
 		];
 
 	}
