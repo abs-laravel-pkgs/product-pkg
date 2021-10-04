@@ -27,6 +27,13 @@ class Category extends BaseModel {
 
 	protected $table = 'categories';
 
+    protected $visible = [
+        'id',
+        'name',
+        'seo_name',
+        'image',
+    ];
+
 	public function __construct(array $attributes = []) {
 		parent::__construct($attributes);
 		$this->rules = [
