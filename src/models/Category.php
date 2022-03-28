@@ -28,14 +28,14 @@ class Category extends BaseModel {
 	protected $table = 'categories';
 
     protected $visible = [
-        'id',
-        'name',
-        'seo_name',
-        'image',
-        'display_order',
-        'main_category_id',
-        'page_title',
-        'has_free'
+//        'id',
+//        'name',
+//        'seo_name',
+//        'image',
+//        'display_order',
+//        'main_category_id',
+//        'page_title',
+//        'has_free'
     ];
 
 	public function __construct(array $attributes = []) {

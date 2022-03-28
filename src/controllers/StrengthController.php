@@ -1,9 +1,9 @@
 <?php
 
-namespace Abs\ProductPkg;
-use Abs\BasicPkg\Entity;
-use Abs\ProductPkg\Strength;
+namespace Abs\ProductPkg\Controllers;
+use App\Entity;
 use App\Http\Controllers\Controller;
+use App\Strength;
 use Auth;
 use Carbon\Carbon;
 use DB;
